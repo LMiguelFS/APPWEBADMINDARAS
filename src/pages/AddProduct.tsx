@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Package } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
@@ -9,83 +9,116 @@ const AddProduct: React.FC = () => {
 
   const [formData, setFormData] = useState({
     name: '',
-    detalles: '', // Cambiado de category a detalles
+    detalles: '',
     price: 0,
-    imageFile: null as File | null, // Nuevo campo para archivo de imagen
+    imageFile: null as File | null,
+    form_id: 0,
+    color_id: 0,
+    scent_id: 0,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [formas, setFormas] = useState<{ id: number; name: string }[]>([]);
+  const [colores, setColores] = useState<{ id: number; name: string }[]>([]);
+  const [aromas, setAromas] = useState<{ id: number; name: string }[]>([]);
+  const [success, setSuccess] = useState('');
+
+  // Obtener formas, colores y aromas de la API
+  useEffect(() => {
+    fetch('https://api.darasglowcandle.site/api/forms')
+      .then(res => res.json())
+      .then(data => setFormas(data))
+      .catch(() => setFormas([]));
+
+    fetch('https://api.darasglowcandle.site/api/colors')
+      .then(res => res.json())
+      .then(data => setColores(data))
+      .catch(() => setColores([]));
+
+    fetch('https://api.darasglowcandle.site/api/scents')
+      .then(res => res.json())
+      .then(data => setAromas(data))
+      .catch(() => setAromas([]));
+  }, []);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.name.trim()) {
-      newErrors.name = 'El nombre del producto es obligatorio';
-    }
-
-    if (!formData.detalles.trim()) {
-      newErrors.detalles = 'Los detalles son obligatorios';
-    }
-
-    if (formData.price <= 0) {
-      newErrors.price = 'El precio debe ser mayor a 0';
-    }
+    if (!formData.name.trim()) newErrors.name = 'El nombre del producto es obligatorio';
+    if (!formData.detalles.trim()) newErrors.detalles = 'Los detalles son obligatorios';
+    if (formData.price <= 0) newErrors.price = 'El precio debe ser mayor a 0';
+    if (!formData.form_id || formData.form_id <= 0) newErrors.form_id = 'Selecciona una forma';
+    if (!formData.color_id || formData.color_id <= 0) newErrors.color_id = 'Selecciona un color';
+    if (!formData.scent_id || formData.scent_id <= 0) newErrors.scent_id = 'Selecciona un aroma';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateForm()) return;
 
-    if (validateForm()) {
-      // Aquí puedes manejar la subida de la imagen junto con los datos
-      // Por ejemplo, usando FormData para enviar a un backend
-      // const data = new FormData();
-      // data.append('name', formData.name);
-      // data.append('detalles', formData.detalles);
-      // data.append('price', formData.price.toString());
-      // if (formData.imageFile) data.append('image', formData.imageFile);
+    // Si no necesitas imagen, prueba enviar como JSON:
+    const payload = {
+      name: formData.name,
+      detail: formData.detalles, 
+      price: formData.price,
+      form_id: formData.form_id,
+      colors: formData.color_id ? [formData.color_id] : [],
+      scents: formData.scent_id ? [formData.scent_id] : [],
+    };
 
-      addProduct(formData);
-      navigate('/products');
+    try {
+      const res = await fetch('https://api.darasglowcandle.site/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error('Error al registrar');
+      setSuccess('¡Producto registrado exitosamente!');
+      setTimeout(() => {
+        setSuccess('');
+        navigate('/products');
+      }, 1500);
+    } catch {
+      setErrors({ general: 'Error al registrar el producto' });
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value, type } = e.target;
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
 
     if (name === 'price') {
-      setFormData({
-        ...formData,
-        [name]: parseFloat(value) || 0,
-      });
+      setFormData({ ...formData, [name]: parseFloat(value) || 0 });
+    } else if (name === 'form_id' || name === 'color_id' || name === 'scent_id') {
+      setFormData({ ...formData, [name]: parseInt(value) || 0 });
     } else {
-      setFormData({
-        ...formData,
-        [name]: value,
-      });
+      setFormData({ ...formData, [name]: value });
     }
 
     if (errors[name]) {
-      setErrors({
-        ...errors,
-        [name]: '',
-      });
+      setErrors({ ...errors, [name]: '' });
     }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFormData({
-        ...formData,
-        imageFile: e.target.files[0],
-      });
+      setFormData({ ...formData, imageFile: e.target.files[0] });
     }
   };
 
   return (
     <div>
+      {/* Toast emergente */}
+      {success && (
+        <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50">
+          <div className="bg-green-500 text-white px-6 py-3 rounded shadow-lg font-semibold">
+            {success}
+          </div>
+        </div>
+      )}
+
       {/* Navigation */}
       <nav className="mb-6">
         <button
@@ -155,6 +188,66 @@ const AddProduct: React.FC = () => {
                   } rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#4A55A2] focus:border-[#4A55A2] sm:text-sm`}
               />
               {errors.price && <p className="mt-1 text-sm text-red-600">{errors.price}</p>}
+            </div>
+
+            <div>
+              <label htmlFor="form_id" className="block text-sm font-medium text-gray-700">
+                Forma <span className="text-red-500">*</span>
+              </label>
+              <select
+                name="form_id"
+                id="form_id"
+                value={formData.form_id}
+                onChange={handleInputChange}
+                className={`mt-1 block w-full border ${errors.form_id ? 'border-red-300' : 'border-gray-300'
+                  } rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#4A55A2] focus:border-[#4A55A2] sm:text-sm`}
+              >
+                <option value={0}>Selecciona una forma</option>
+                {formas.map(f => (
+                  <option key={f.id} value={f.id}>{f.name}</option>
+                ))}
+              </select>
+              {errors.form_id && <p className="mt-1 text-sm text-red-600">{errors.form_id}</p>}
+            </div>
+
+            <div>
+              <label htmlFor="color_id" className="block text-sm font-medium text-gray-700">
+                Color <span className="text-red-500">*</span>
+              </label>
+              <select
+                name="color_id"
+                id="color_id"
+                value={formData.color_id}
+                onChange={handleInputChange}
+                className={`mt-1 block w-full border ${errors.color_id ? 'border-red-300' : 'border-gray-300'
+                  } rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#4A55A2] focus:border-[#4A55A2] sm:text-sm`}
+              >
+                <option value={0}>Selecciona un color</option>
+                {colores.map(c => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+              {errors.color_id && <p className="mt-1 text-sm text-red-600">{errors.color_id}</p>}
+            </div>
+
+            <div>
+              <label htmlFor="scent_id" className="block text-sm font-medium text-gray-700">
+                Aroma <span className="text-red-500">*</span>
+              </label>
+              <select
+                name="scent_id" // Cambiado de aroma_id a scent_id
+                id="scent_id"
+                value={formData.scent_id}
+                onChange={handleInputChange}
+                className={`mt-1 block w-full border ${errors.scent_id ? 'border-red-300' : 'border-gray-300'
+                  } rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#4A55A2] focus:border-[#4A55A2] sm:text-sm`}
+              >
+                <option value={0}>Selecciona un aroma</option>
+                {aromas.map(a => (
+                  <option key={a.id} value={a.id}>{a.name}</option>
+                ))}
+              </select>
+              {errors.scent_id && <p className="mt-1 text-sm text-red-600">{errors.scent_id}</p>}
             </div>
 
             <div>

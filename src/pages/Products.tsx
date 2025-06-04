@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, Search, Filter, Package, Grid3X3, List } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import ProductCard from '../components/ProductCard';
+import ProductList from '../components/ProductList';
 
 const Products: React.FC = () => {
   const { products } = useInventory();
@@ -30,13 +31,35 @@ const Products: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-900">Productos</h1>
           <p className="mt-1 text-sm text-gray-500">Administra tu inventario de productos</p>
         </div>
-        <div className="mt-4 md:mt-0">
+        <div className="mt-4 md:mt-0 flex gap-2">
           <button
             onClick={() => navigate('/products/add')}
             className="flex items-center px-4 py-2 bg-[#4A55A2] text-white rounded-md hover:bg-[#38467f] transition-colors duration-150"
           >
             <Plus className="h-5 w-5 mr-1" />
             Añadir producto
+          </button>
+          <button
+            onClick={() => navigate('/formas/add')}
+            className="flex items-center px-4 py-2 bg-[#4A55A2] text-white rounded-md hover:bg-[#38467f] transition-colors duration-150"
+          >
+            <Plus className="h-5 w-5 mr-1" />
+            Añadir forma
+          </button>
+          <button
+            onClick={() => navigate('/color/add')}
+            className="flex items-center px-4 py-2 bg-[#4A55A2] text-white rounded-md hover:bg-[#38467f] transition-colors duration-150"
+          >
+            <Plus className="h-5 w-5 mr-1" />
+            Añadir color
+          </button>
+
+          <button
+            onClick={() => navigate('aromas/add')}
+            className="flex items-center px-4 py-2 bg-[#4A55A2] text-white rounded-md hover:bg-[#38467f] transition-colors duration-150"
+          >
+            <Plus className="h-5 w-5 mr-1" />
+            Añadir Aroma
           </button>
         </div>
       </div>
@@ -85,6 +108,7 @@ const Products: React.FC = () => {
               : 'bg-white text-gray-700 hover:bg-gray-50'
               } transition-colors duration-150`}
             onClick={() => setViewMode('grid')}
+            aria-pressed={viewMode === 'grid'}
           >
             <Grid3X3 className="h-5 w-5" />
           </button>
@@ -95,6 +119,7 @@ const Products: React.FC = () => {
               : 'bg-white text-gray-700 hover:bg-gray-50'
               } -ml-px transition-colors duration-150`}
             onClick={() => setViewMode('list')}
+            aria-pressed={viewMode === 'list'}
           >
             <List className="h-5 w-5" />
           </button>
@@ -125,7 +150,15 @@ const Products: React.FC = () => {
       {viewMode === 'grid' && filteredProducts.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filteredProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard
+              key={product.id}
+              product={{
+                ...product,
+                imageUrl: product.imageUrl,
+                description: product.description,
+                price: typeof product.price === 'string' ? parseFloat(product.price) : product.price,
+              }}
+            />
           ))}
         </div>
       )}
@@ -211,6 +244,8 @@ const Products: React.FC = () => {
           </table>
         </div>
       )}
+
+      <ProductList />
     </div>
   );
 };

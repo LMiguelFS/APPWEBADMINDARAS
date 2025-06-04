@@ -22,7 +22,7 @@ api.interceptors.request.use((config) => {
 export const productsApi = {
   getAll: () => api.get('/products'),
   getById: (id: string) => api.get(`/products/${id}`),
-  create: (data: any) => api.post('/products', data),
+  create: (data: any) => api.post('/products', data), // Aquí se realiza el POST
   update: (id: string, data: any) => api.put(`/products/${id}`, data),
   delete: (id: string) => api.delete(`/products/${id}`),
 };

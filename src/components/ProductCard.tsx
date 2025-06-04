@@ -1,54 +1,79 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, AlertTriangle } from 'lucide-react';
-import { Product } from '../context/InventoryContext';
+import { Pencil, Trash2 } from 'lucide-react';
 
 interface ProductCardProps {
-  product: Product;
+  product: {
+    id: number;
+    name: string;
+    description?: string | null;
+    detail?: string | null;
+    price: number | string;
+    imageUrl?: string | null;
+    colors?: { id: number; name: string }[];
+    scents?: { id: number; name: string }[];
+    form?: { id: number; name: string };
+  };
+  onDelete?: (id: number) => void;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, onDelete }) => {
   const navigate = useNavigate();
-  const isLowStock = product.stock <= 5;
-  
+
   return (
-    <div 
-      className="relative bg-white rounded-lg border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-md cursor-pointer"
-      onClick={() => navigate(`/products/${product.id}`)}
+    <div
+      className="relative bg-white rounded-xl border border-gray-200 overflow-hidden shadow hover:shadow-lg transition-all duration-300 cursor-pointer flex flex-col"
     >
-      {product.imageUrl && (
-        <div className="h-48 overflow-hidden">
-          <img 
-            src={product.imageUrl} 
-            alt={product.name} 
-            className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-          />
+      {product.imageUrl ? (
+        <img
+          src={product.imageUrl}
+          alt={product.name}
+          className="w-full h-48 object-cover"
+        />
+      ) : (
+        <div className="w-full h-48 bg-gray-100 flex items-center justify-center text-gray-400 text-4xl">
+          <span className="font-bold">Sin imagen</span>
         </div>
       )}
-      <div className="p-4">
-        <div className="flex justify-between items-start">
-          <div>
-            <h3 className="text-lg font-medium text-gray-900 truncate">{product.name}</h3>
-            <p className="text-sm text-gray-500 mt-1">{product.category}</p>
-          </div>
-          {isLowStock && (
-            <div className="bg-amber-100 p-1 rounded-full">
-              <AlertTriangle className="h-4 w-4 text-amber-600" />
-            </div>
+      <div className="p-5 flex-1 flex flex-col">
+        <h2 className="text-lg font-bold text-[#4A55A2] mb-1">{product.name}</h2>
+        <p className="text-xs text-gray-500 mb-2">{product.description || product.detail}</p>
+        <div className="flex flex-wrap gap-2 mb-2">
+          {product.colors && product.colors.length > 0 && (
+            <span className="inline-block bg-blue-50 text-blue-700 text-xs px-2 py-1 rounded">
+              <span className="font-semibold">Colores:</span> {product.colors.map(c => c.name).join(', ')}
+            </span>
+          )}
+          {product.scents && product.scents.length > 0 && (
+            <span className="inline-block bg-pink-50 text-pink-700 text-xs px-2 py-1 rounded">
+              <span className="font-semibold">Aromas:</span> {product.scents.map(s => s.name).join(', ')}
+            </span>
+          )}
+          {product.form && (
+            <span className="inline-block bg-green-50 text-green-700 text-xs px-2 py-1 rounded">
+              <span className="font-semibold">Forma:</span> {product.form.name}
+            </span>
           )}
         </div>
-        <div className="mt-4 flex justify-between items-end">
-          <div>
-            <p className="text-xl font-semibold text-gray-900">${product.price.toFixed(2)}</p>
-            <p className={`text-sm mt-1 ${isLowStock ? 'text-red-600 font-medium' : 'text-gray-500'}`}>
-              Stock: {product.stock} units
-            </p>
-          </div>
-          <div 
-            className="flex items-center text-[#4A55A2] hover:text-[#38467f] transition-colors duration-150"
-          >
-            <span className="text-sm font-medium mr-1">Details</span>
-            <ArrowRight className="h-4 w-4" />
+        <div className="flex items-end justify-between mt-auto">
+          <span className="text-base font-bold text-gray-900">${product.price}</span>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              className="p-2 rounded hover:bg-gray-100"
+              title="Editar"
+              onClick={() => navigate(`/products/edit/${product.id}`)}
+            >
+              <Pencil className="h-5 w-5 text-[#4A55A2]" />
+            </button>
+            <button
+              type="button"
+              className="p-2 rounded hover:bg-red-100"
+              title="Eliminar"
+              onClick={() => onDelete && onDelete(product.id)}
+            >
+              <Trash2 className="h-5 w-5 text-red-500" />
+            </button>
           </div>
         </div>
       </div>

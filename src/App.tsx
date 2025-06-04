@@ -14,6 +14,10 @@ import AddProduct from './pages/AddProduct';
 import AddSale from './pages/AddSale';
 import Login from './pages/Login';
 import ForumAdmin from './pages/Forum';
+import AddForma from './pages/AddForma';
+import AddColor from './pages/AddColor';
+import AddAroma from './pages/AddAroma';
+import EditProduct from './components/editProduct';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -44,6 +48,10 @@ function App() {
               <Route path="sales/add" element={<AddSale />} />
               <Route path="reports" element={<Reports />} />
               <Route path="forum" element={<ForumAdmin />} />
+              <Route path="formas/add" element={<AddForma />} />
+              <Route path="color/add" element={<AddColor />} />
+              <Route path="aromas/add" element={<AddAroma />} />
+              <Route path="products/edit/:id" element={<EditProduct />} />
             </Route>
           </Routes>
         </Router>
