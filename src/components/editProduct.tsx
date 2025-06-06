@@ -7,11 +7,11 @@ const EditProduct: React.FC = () => {
 
   const [formData, setFormData] = useState({
     name: '',
-    detail: '',
+    description: '',
     price: '',
     form_id: 0,
-    color_id: 0,
-    scent_id: 0,
+    colors: [] as number[],
+    scents: [] as number[],
   });
   const [formas, setFormas] = useState<{ id: number; name: string }[]>([]);
   const [colores, setColores] = useState<{ id: number; name: string }[]>([]);
@@ -26,11 +26,11 @@ const EditProduct: React.FC = () => {
       .then(data => {
         setFormData({
           name: data.name || '',
-          detail: data.detail || '',
+          description: data.description || '',
           price: data.price || '',
           form_id: data.form_id || 0,
-          color_id: data.colors && data.colors[0] ? data.colors[0].id : 0,
-          scent_id: data.scents && data.scents[0] ? data.scents[0].id : 0,
+          colors: data.colors ? data.colors.map((c: any) => c.id) : [],
+          scents: data.scents ? data.scents.map((s: any) => s.id) : [],
         });
       });
 
@@ -43,7 +43,7 @@ const EditProduct: React.FC = () => {
       .then(res => res.json()).then(setAromas);
   }, [id]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -60,11 +60,11 @@ const EditProduct: React.FC = () => {
     try {
       const payload = {
         name: formData.name,
-        detail: formData.detail,
+        description: formData.description,
         price: formData.price,
         form_id: Number(formData.form_id),
-        colors: formData.color_id ? [Number(formData.color_id)] : [],
-        scents: formData.scent_id ? [Number(formData.scent_id)] : [],
+        colors: formData.colors,
+        scents: formData.scents,
       };
       const res = await fetch(`https://api.darasglowcandle.site/api/products/${id}`, {
         method: 'PUT',
@@ -97,14 +97,13 @@ const EditProduct: React.FC = () => {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Detalles</label>
-          <input
-            type="text"
-            name="detail"
-            value={formData.detail}
+          <label className="block text-sm font-medium text-gray-700">Descripción</label>
+          <textarea
+            name="description"
+            value={formData.description}
             onChange={handleChange}
             className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3"
-            required
+            rows={3}
           />
         </div>
         <div>
@@ -134,34 +133,46 @@ const EditProduct: React.FC = () => {
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Color</label>
-          <select
-            name="color_id"
-            value={formData.color_id}
-            onChange={handleChange}
-            className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3"
-            required
-          >
-            <option value={0}>Selecciona un color</option>
+          <label className="block text-sm font-medium text-gray-700">Colores</label>
+          <div className="flex flex-wrap gap-3 mt-2">
             {colores.map(c => (
-              <option key={c.id} value={c.id}>{c.name}</option>
+              <label key={c.id} className="flex items-center gap-1">
+                <input
+                  type="checkbox"
+                  checked={formData.colors.includes(c.id)}
+                  onChange={e => {
+                    if (e.target.checked) {
+                      setFormData(prev => ({ ...prev, colors: [...prev.colors, c.id] }));
+                    } else {
+                      setFormData(prev => ({ ...prev, colors: prev.colors.filter(id => id !== c.id) }));
+                    }
+                  }}
+                />
+                {c.name}
+              </label>
             ))}
-          </select>
+          </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Aroma</label>
-          <select
-            name="scent_id"
-            value={formData.scent_id}
-            onChange={handleChange}
-            className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3"
-            required
-          >
-            <option value={0}>Selecciona un aroma</option>
+          <label className="block text-sm font-medium text-gray-700">Aromas</label>
+          <div className="flex flex-wrap gap-3 mt-2">
             {aromas.map(a => (
-              <option key={a.id} value={a.id}>{a.name}</option>
+              <label key={a.id} className="flex items-center gap-1">
+                <input
+                  type="checkbox"
+                  checked={formData.scents.includes(a.id)}
+                  onChange={e => {
+                    if (e.target.checked) {
+                      setFormData(prev => ({ ...prev, scents: [...prev.scents, a.id] }));
+                    } else {
+                      setFormData(prev => ({ ...prev, scents: prev.scents.filter(id => id !== a.id) }));
+                    }
+                  }}
+                />
+                {a.name}
+              </label>
             ))}
-          </select>
+          </div>
         </div>
         <div className="flex justify-end gap-2">
           <button
