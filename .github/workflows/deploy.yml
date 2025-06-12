@@ -1,0 +1,63 @@
+# Nombre del workflow, aparecerá en la pestaña "Actions" de tu repo
+name: AppWebAdminDaras Deploy
+
+# Define cuándo se ejecutará este workflow
+on:
+  push:
+    branches:
+      - main # Ejecuta este workflow cada vez que se haga un push a la rama 'main'
+      # Puedes añadir más ramas si tienes entornos de staging, por ejemplo:
+      # - staging
+
+  # También puedes añadir un trigger manual para ejecutarlo cuando quieras
+  workflow_dispatch:
+
+# Define los trabajos (jobs) que se ejecutarán
+jobs:
+  deploy:
+    # El tipo de runner (máquina virtual) donde se ejecutará el job.
+    # ubuntu-latest es una opción común y gratuita.
+    runs-on: ubuntu-latest
+    environment: secrets
+
+    # Pasos del job
+    steps:
+      # Paso 1: Checkout del código del repositorio
+      # Esto baja tu código al runner de GitHub Actions
+      - name: Checkout Repository
+        uses: actions/checkout@v4 # Usa la acción oficial de checkout
+
+      # Paso 2: Configura Node.js (si tu app es Node.js, React, Vue, Angular, etc.)
+      # Ajusta la versión de Node.js a la que uses en tu proyecto
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20" # O la versión que necesites, ej. '18', '20', '22'
+          cache: "npm" # Habilita el cacheo de módulos npm para builds más rápidos
+          cache-dependency-path: "package-lock.json" # Ruta al archivo lock para el cacheo
+
+      # Paso 3: Instala las dependencias de tu proyecto
+      - name: Install Dependencies
+        run: npm install # O 'yarn install' si usas Yarn
+
+      # Paso 4: Construye tu aplicación frontend (genera los archivos estáticos)
+      - name: Build Frontend App
+        run: npm run build # O el comando de build de tu framework (ej. 'yarn build', 'ng build --configuration production')
+
+      # Paso 5: Despliega los archivos al hosting vía FTP
+      # Usaremos una acción de terceros popular para FTP.
+      # Revisa su documentación para ver si tiene opciones adicionales que te sirvan.
+      - name: FTP Deploy
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4 # Acción de despliegue FTP
+        with:
+          server: ${{ ftp.darasglowcandle.site }} # Usa el secret para el servidor FTP
+          username: ${{ administrador@darasglowcandle.site }} # Usa el secret para el usuario FTP
+          password: ${{ M$1DQ&JA[*qtZ,R! }} # Usa el secret para la contraseña FTP
+          # (Opcional) Si tu puerto no es el 21, descomenta y usa:
+          # port: ${{ secrets.FTP_PORT }}
+
+          # Ruta a la carpeta local que contiene los archivos a subir
+          local-dir: "./dist/" # Por ejemplo, para React, es 'build/'. Para Vue, 'dist/'. Para Angular, 'dist/tu-app-name/'.
+
+          # Ruta en tu servidor de hosting donde se subirán los archivos
+          server-dir: "./"
