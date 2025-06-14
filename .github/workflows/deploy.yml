@@ -1,0 +1,49 @@
+# Nombre del workflow, aparecerá en la pestaña "Actions" de tu repo
+name: Admin AppWebDaras Deploy
+
+# Define cuándo se ejecutará este workflow
+on:
+  push:
+    branches:
+      - main 
+
+  # También puedes añadir un trigger manual para ejecutarlo cuando quieras
+  workflow_dispatch:
+
+# Define los trabajos (jobs) que se ejecutarán
+jobs:
+  deploy:
+    # El tipo de runner (máquina virtual) donde se ejecutará el job.
+    # ubuntu-latest es una opción común y gratuita.
+    runs-on: ubuntu-latest
+    environment: secrets
+
+    # Pasos del job
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4 # Usa la acción oficial de checkout
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # O la versión que necesites, ej. '18', '20', '22'
+          cache: 'npm' # Habilita el cacheo de módulos npm para builds más rápidos
+          cache-dependency-path: 'package-lock.json' # Ruta al archivo lock para el cacheo
+
+      # Paso 3: Instala las dependencias de tu proyecto
+      - name: Install Dependencies
+        run: npm install # O 'yarn install' si usas Yarn
+
+      # Paso 4: Construye tu aplicación frontend (genera los archivos estáticos)
+      - name: Build Frontend App
+        run: npm run build 
+
+      - name: FTP Deploy
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4 # Acción de despliegue FTP
+        with:
+          server: ${{ secrets.FTP_SERVER }} # Usa el secret para el servidor FTP
+          username: ${{ secrets.FTP_USERNAME }} # Usa el secret para el usuario FTP
+          password: ${{ secrets.FTP_PASSWORD }} # Usa el secret para la contraseña FTP
+          local-dir: './dist/' 
+
+          server-dir: './'
