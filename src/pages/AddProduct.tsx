@@ -10,7 +10,8 @@ const AddProduct: React.FC = () => {
     price: 0,
     description: '',
     dimensions: '',
-    imageUrl: '',
+    imageUrl: '', // Cambiaremos el manejo de este campo
+    imageFile: null as File | null, // Nuevo campo para el archivo
     form_id: 0,
     event_id: 0,
     burnTime: '',
@@ -29,22 +30,23 @@ const AddProduct: React.FC = () => {
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
-    fetch('https://api.darasglowcandle.site/api/forms')
-      .then(res => res.json())
+    //const url = 'https://api.darasglowcandle.site';
+    const url = 'http://127.0.0.1:8000'
+    fetch(url + '/api/forms')
       .then(data => setFormas(data))
       .catch(() => setFormas([]));
 
-    fetch('https://api.darasglowcandle.site/api/colors')
+    fetch(url + '/api/colors')
       .then(res => res.json())
       .then(data => setColores(data))
       .catch(() => setColores([]));
 
-    fetch('https://api.darasglowcandle.site/api/scents')
+    fetch(url + '/api/scents')
       .then(res => res.json())
       .then(data => setAromas(data))
       .catch(() => setAromas([]));
 
-    fetch('https://api.darasglowcandle.site/api/events')
+    fetch(url + '/api/events')
       .then(res => res.json())
       .then(data => setEventos(data))
       .catch(() => setEventos([]));
@@ -101,9 +103,9 @@ const AddProduct: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
-
+    const url = 'http://127.0.0.1:8000'
     try {
-      const res = await fetch('https://api.darasglowcandle.site/api/products', {
+      const res = await fetch(url + '/api/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),

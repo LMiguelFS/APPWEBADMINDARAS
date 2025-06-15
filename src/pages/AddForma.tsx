@@ -17,6 +17,7 @@ const AddForma: React.FC = () => {
             setLoadingFormas(true);
             try {
                 const res = await fetch('https://api.darasglowcandle.site/api/forms');
+                //const res = await fetch('http://127.0.0.1:8000/api/forms');
                 const data = await res.json();
                 setFormas(data);
             } catch {
@@ -55,6 +56,7 @@ const AddForma: React.FC = () => {
             // Agregar forma nueva
             try {
                 await fetch('https://api.darasglowcandle.site/api/forms', {
+                    //await fetch('http://127.0.0.1:8000/api/forms', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ name }),
