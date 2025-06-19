@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  Package, 
-  Edit, 
-  Trash, 
+import {
+  Package,
+  Edit,
+  Trash,
   ArrowLeft,
   AlertTriangle,
   ShoppingCart,
@@ -15,13 +15,14 @@ const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { getProduct, updateProduct, deleteProduct, addSale } = useInventory();
-  
+
   const product = getProduct(id || '');
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showSaleModal, setShowSaleModal] = useState(false);
   const [saleQuantity, setSaleQuantity] = useState(1);
-  
+  const [saleSuccess, setSaleSuccess] = useState('');
+
   const [editFormData, setEditFormData] = useState({
     name: product?.name || '',
     category: product?.category || '',
@@ -32,7 +33,7 @@ const ProductDetail: React.FC = () => {
     description: product?.description || '',
     imageUrl: product?.imageUrl || '',
   });
-  
+
   if (!product) {
     return (
       <div className="flex flex-col items-center justify-center py-12">
@@ -53,33 +54,22 @@ const ProductDetail: React.FC = () => {
       </div>
     );
   }
-  
+
   const handleUpdateProduct = () => {
     updateProduct(product.id, editFormData);
     setIsEditing(false);
   };
-  
+
   const handleDeleteProduct = () => {
     deleteProduct(product.id);
     navigate('/products');
   };
-  
-  const handleCreateSale = () => {
-    if (saleQuantity > 0 && saleQuantity <= product.stock) {
-      addSale({
-        productId: product.id,
-        quantity: saleQuantity,
-        salePrice: product.price,
-      });
-      setShowSaleModal(false);
-      // Show a success message
-    }
-  };
-  
+
+
   const isLowStock = product.stock <= 5;
   const profit = product.price - product.cost;
   const profitMargin = (profit / product.price) * 100;
-  
+
   return (
     <div>
       {/* Navigation */}
@@ -92,7 +82,7 @@ const ProductDetail: React.FC = () => {
           Back to Products
         </button>
       </nav>
-      
+
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         {/* Header */}
         <div className="px-6 py-5 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center">
@@ -125,15 +115,15 @@ const ProductDetail: React.FC = () => {
             </button>
           </div>
         </div>
-        
+
         {/* Product details */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
           {/* Left column: Image */}
           <div className="md:col-span-1">
             {product.imageUrl ? (
-              <img 
-                src={product.imageUrl} 
-                alt={product.name} 
+              <img
+                src={product.imageUrl}
+                alt={product.name}
                 className="w-full h-auto rounded-lg object-cover"
               />
             ) : (
@@ -141,11 +131,10 @@ const ProductDetail: React.FC = () => {
                 <Package className="h-12 w-12 text-gray-400" />
               </div>
             )}
-            
+
             {/* Stock status */}
-            <div className={`mt-4 p-3 rounded-md ${
-              isLowStock ? 'bg-red-50 border border-red-200' : 'bg-green-50 border border-green-200'
-            }`}>
+            <div className={`mt-4 p-3 rounded-md ${isLowStock ? 'bg-red-50 border border-red-200' : 'bg-green-50 border border-green-200'
+              }`}>
               <div className="flex items-center">
                 {isLowStock ? (
                   <AlertTriangle className="h-5 w-5 text-red-500 mr-2" />
@@ -162,7 +151,7 @@ const ProductDetail: React.FC = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Product timestamps */}
             <div className="mt-4 p-3 bg-gray-50 rounded-md border border-gray-200">
               <div className="flex items-center mb-2">
@@ -179,7 +168,7 @@ const ProductDetail: React.FC = () => {
               </div>
             </div>
           </div>
-          
+
           {/* Right column: Details */}
           <div className="md:col-span-2">
             {isEditing ? (
@@ -197,7 +186,7 @@ const ProductDetail: React.FC = () => {
                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#4A55A2] focus:border-[#4A55A2] sm:text-sm"
                   />
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="category" className="block text-sm font-medium text-gray-700">
@@ -211,7 +200,7 @@ const ProductDetail: React.FC = () => {
                       className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#4A55A2] focus:border-[#4A55A2] sm:text-sm"
                     />
                   </div>
-                  
+
                   <div>
                     <label htmlFor="sku" className="block text-sm font-medium text-gray-700">
                       SKU
@@ -225,7 +214,7 @@ const ProductDetail: React.FC = () => {
                     />
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label htmlFor="price" className="block text-sm font-medium text-gray-700">
@@ -239,7 +228,7 @@ const ProductDetail: React.FC = () => {
                       className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#4A55A2] focus:border-[#4A55A2] sm:text-sm"
                     />
                   </div>
-                  
+
                   <div>
                     <label htmlFor="cost" className="block text-sm font-medium text-gray-700">
                       Cost ($)
@@ -252,7 +241,7 @@ const ProductDetail: React.FC = () => {
                       className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#4A55A2] focus:border-[#4A55A2] sm:text-sm"
                     />
                   </div>
-                  
+
                   <div>
                     <label htmlFor="stock" className="block text-sm font-medium text-gray-700">
                       Stock
@@ -266,7 +255,7 @@ const ProductDetail: React.FC = () => {
                     />
                   </div>
                 </div>
-                
+
                 <div>
                   <label htmlFor="description" className="block text-sm font-medium text-gray-700">
                     Description
@@ -279,7 +268,7 @@ const ProductDetail: React.FC = () => {
                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#4A55A2] focus:border-[#4A55A2] sm:text-sm"
                   />
                 </div>
-                
+
                 <div>
                   <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700">
                     Image URL
@@ -292,7 +281,7 @@ const ProductDetail: React.FC = () => {
                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#4A55A2] focus:border-[#4A55A2] sm:text-sm"
                   />
                 </div>
-                
+
                 <div className="flex justify-end space-x-3 pt-4">
                   <button
                     onClick={() => setIsEditing(false)}
@@ -316,7 +305,7 @@ const ProductDetail: React.FC = () => {
                     <p className="text-sm font-medium text-gray-500">Sale Price</p>
                     <p className="text-2xl font-bold text-gray-900">${product.price.toFixed(2)}</p>
                   </div>
-                  
+
                   <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                     <p className="text-sm font-medium text-gray-500">Profit Margin</p>
                     <div className="flex items-baseline">
@@ -325,13 +314,13 @@ const ProductDetail: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="space-y-4">
                   <div>
                     <h3 className="text-sm font-medium text-gray-500">Description</h3>
                     <p className="mt-1 text-sm text-gray-900">{product.description}</p>
                   </div>
-                  
+
                   <div className="border-t border-gray-200 pt-4">
                     <h3 className="text-sm font-medium text-gray-500 mb-2">Product Details</h3>
                     <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
@@ -359,7 +348,7 @@ const ProductDetail: React.FC = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Delete confirmation modal */}
       {isDeleting && (
         <div className="fixed inset-0 z-10 overflow-y-auto">
@@ -404,7 +393,7 @@ const ProductDetail: React.FC = () => {
           </div>
         </div>
       )}
-      
+
       {/* Record sale modal */}
       {showSaleModal && (
         <div className="fixed inset-0 z-10 overflow-y-auto">
@@ -464,7 +453,6 @@ const ProductDetail: React.FC = () => {
                 <button
                   type="button"
                   className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#4A55A2] text-base font-medium text-white hover:bg-[#38467f] focus:outline-none sm:ml-3 sm:w-auto sm:text-sm"
-                  onClick={handleCreateSale}
                   disabled={saleQuantity <= 0 || saleQuantity > product.stock}
                 >
                   Confirm Sale

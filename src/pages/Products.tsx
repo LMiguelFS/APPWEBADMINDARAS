@@ -55,11 +55,19 @@ const Products: React.FC = () => {
           </button>
 
           <button
-            onClick={() => navigate('aromas/add')}
+            onClick={() => navigate('/aromas/add')}
             className="flex items-center px-4 py-2 bg-[#4A55A2] text-white rounded-md hover:bg-[#38467f] transition-colors duration-150"
           >
             <Plus className="h-5 w-5 mr-1" />
             Añadir Aroma
+          </button>
+
+          <button
+            onClick={() => navigate('/evento/add')}
+            className="flex items-center px-4 py-2 bg-[#4A55A2] text-white rounded-md hover:bg-[#38467f] transition-colors duration-150"
+          >
+            <Plus className="h-5 w-5 mr-1" />
+            Añadir Tipo Evento
           </button>
         </div>
       </div>

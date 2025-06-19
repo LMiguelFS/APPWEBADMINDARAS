@@ -15,29 +15,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
   const [user, setUser] = useState<any>(null);
 
-  const login = async (username: string, password: string) => {
+  const login = async (email: string, password: string) => {
     try {
-      // For demo purposes, implement a mock login
-      if (username === 'admin' && password === 'admin') {
-        const mockToken = 'mock-jwt-token';
-        const mockUser = {
-          id: '1',
-          username: 'admin',
-          name: 'Admin User',
-          email: 'admin@example.com'
-        };
-        
-        localStorage.setItem('token', mockToken);
-        setIsAuthenticated(true);
-        setUser(mockUser);
-        return true;
-      }
-      
-      toast.error('Credenciales inválidas. Use admin/admin para iniciar sesión.');
-      return false;
-    } catch (error) {
-      console.error('Login error:', error);
-      toast.error('Error al iniciar sesión. Intente nuevamente.');
+      const response = await fetch('http://192.168.137.84:8000/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      if (!response.ok) return false;
+      const data = await response.json();
+      // Guarda el token en localStorage o context
+      localStorage.setItem('token', data.access_token);
+      // Opcional: guarda el usuario
+      setUser(data.user);
+      return true;
+    } catch {
       return false;
     }
   };

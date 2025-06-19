@@ -1,6 +1,6 @@
 # Nombre del workflow, aparecerá en la pestaña "Actions" de tu repo
-name: Admin AppWebDaras Deploy
 
+name: AppWebAdminDaras Deploy
 # Define cuándo se ejecutará este workflow
 on:
   push:
@@ -28,7 +28,7 @@ jobs:
         with:
           node-version: '20' # O la versión que necesites, ej. '18', '20', '22'
           cache: 'npm' # Habilita el cacheo de módulos npm para builds más rápidos
-          cache-dependency-path: 'package-lock.json' # Ruta al archivo lock para el cacheo
+          cache-dependency-path: 'package-lock.json' # Ruta al archivo lock para el cache
 
       # Paso 3: Instala las dependencias de tu proyecto
       - name: Install Dependencies
@@ -47,3 +47,4 @@ jobs:
           local-dir: './dist/' 
 
           server-dir: './'
+

@@ -17,6 +17,7 @@ import ForumAdmin from './pages/Forum';
 import AddForma from './pages/AddForma';
 import AddColor from './pages/AddColor';
 import AddAroma from './pages/AddAroma';
+import AddEvento from './pages/AddTEvento';
 import EditProduct from './components/editProduct';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -51,6 +52,7 @@ function App() {
               <Route path="formas/add" element={<AddForma />} />
               <Route path="color/add" element={<AddColor />} />
               <Route path="aromas/add" element={<AddAroma />} />
+              <Route path="evento/add" element={<AddEvento />} />
               <Route path="products/edit/:id" element={<EditProduct />} />
             </Route>
           </Routes>
