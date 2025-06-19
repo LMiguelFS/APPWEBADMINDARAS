@@ -3,7 +3,7 @@ const API_AUTH_URL = import.meta.env.VITE_API_AUTH_URL;
 
 export const authService = {
   async signIn(email: string, password: string) {
-    const response = await fetch(`${API_AUTH_URL}/login`, {
+    const response = await fetch(`${API_AUTH_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
