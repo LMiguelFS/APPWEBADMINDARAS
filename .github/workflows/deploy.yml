@@ -1,50 +1,46 @@
-# Nombre del workflow, aparecerá en la pestaña "Actions" de tu repo
-
 name: AppWebAdminDaras Deploy
-# Define cuándo se ejecutará este workflow
 on:
   push:
     branches:
-      - main 
-
-  # También puedes añadir un trigger manual para ejecutarlo cuando quieras
+      - main
   workflow_dispatch:
 
-# Define los trabajos (jobs) que se ejecutarán
 jobs:
   deploy:
-    # El tipo de runner (máquina virtual) donde se ejecutará el job.
-    # ubuntu-latest es una opción común y gratuita.
     runs-on: ubuntu-latest
     environment: secrets
 
-    # Pasos del job
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4 # Usa la acción oficial de checkout
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # O la versión que necesites, ej. '18', '20', '22'
-          cache: 'npm' # Habilita el cacheo de módulos npm para builds más rápidos
-          cache-dependency-path: 'package-lock.json' # Ruta al archivo lock para el cache
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
 
-      # Paso 3: Instala las dependencias de tu proyecto
       - name: Install Dependencies
-        run: npm install # O 'yarn install' si usas Yarn
+        run: npm install
 
-      # Paso 4: Construye tu aplicación frontend (genera los archivos estáticos)
+      - name: Set Environment Variables
+        run: |
+          echo "VITE_API_USERS_URL=${{ secrets.VITE_API_USERS_URL }}" >> $GITHUB_ENV
+          echo "VITE_API_AUTH_URL=${{ secrets.VITE_API_AUTH_URL }}" >> $GITHUB_ENV
+          echo "VITE_API_PRODUCTS_URL=${{ secrets.VITE_API_PRODUCTS_URL }}" >> $GITHUB_ENV
+          echo "VITE_API_TRANSACTIONS_URL=${{ secrets.VITE_API_TRANSACTIONS_URL }}" >> $GITHUB_ENV
+          echo "VITE_API_ORDERS_URL=${{ secrets.VITE_API_ORDERS_URL }}" >> $GITHUB_ENV
+          echo "VITE_API_PAYMENTS_URL=${{ secrets.VITE_API_PAYMENTS_URL }}" >> $GITHUB_ENV
+
       - name: Build Frontend App
-        run: npm run build 
+        run: npm run build
 
       - name: FTP Deploy
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4 # Acción de despliegue FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          server: ${{ secrets.FTP_SERVER }} # Usa el secret para el servidor FTP
-          username: ${{ secrets.FTP_USERNAME }} # Usa el secret para el usuario FTP
-          password: ${{ secrets.FTP_PASSWORD }} # Usa el secret para la contraseña FTP
-          local-dir: './dist/' 
-
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: './dist/'
           server-dir: './'
-

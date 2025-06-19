@@ -38,10 +38,10 @@ const Login: React.FC = () => {
             <Package className="h-12 w-12 text-[#96B7BC]" />
           </div>
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-            InventoryPro
+            DarasGlowCandle
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            Inicie sesión para gestionar su inventario
+            Inicie sesión 
           </p>
         </div>
 

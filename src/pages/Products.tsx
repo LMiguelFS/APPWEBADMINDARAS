@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Search, Filter, Package, Grid3X3, List } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
-import ProductCard from '../components/ProductCard';
-import ProductList from '../components/ProductList';
+import ProductCard from '../components/product/ProductCard';
+import ProductList from '../components/product/ProductList';
 
 const Products: React.FC = () => {
   const { products } = useInventory();
@@ -162,7 +162,7 @@ const Products: React.FC = () => {
               key={product.id}
               product={{
                 ...product,
-                imageUrl: product.imageUrl,
+                imageUrl: product.image,
                 description: product.description,
                 price: typeof product.price === 'string' ? parseFloat(product.price) : product.price,
               }}
@@ -207,10 +207,10 @@ const Products: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="flex-shrink-0 h-10 w-10">
-                        {product.imageUrl ? (
+                        {product.image? (
                           <img
                             className="h-10 w-10 rounded-md object-cover"
-                            src={product.imageUrl}
+                            src={product.image}
                             alt={product.name}
                           />
                         ) : (

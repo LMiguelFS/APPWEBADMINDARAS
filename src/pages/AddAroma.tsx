@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Pencil, Trash2 } from 'lucide-react';
 
+
 const AddAroma: React.FC = () => {
     const [name, setName] = useState('');
     const [error, setError] = useState('');
@@ -30,42 +31,24 @@ const AddAroma: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!name.trim()) {
-            setError('El nombre es obligatorio');
-            return;
-        }
-        setError('');
-        if (editingId) {
-            // Editar aroma existente
-            try {
-                const res = await fetch(`https://api.darasglowcandle.site/api/scents/${editingId}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name }),
-                });
-                if (!res.ok) throw new Error();
-                setSuccess('¡Aroma modificado exitosamente!');
-                setName('');
-                setEditingId(null);
-                setTimeout(() => setSuccess(''), 1500);
-            } catch {
-                setError('Error al modificar el aroma');
-            }
-        } else {
-            // Agregar aroma nuevo
-            try {
-                await fetch('https://api.darasglowcandle.site/api/scents', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name }),
-                });
-                setSuccess('¡Aroma registrado exitosamente!');
-                setName('');
-                setTimeout(() => setSuccess(''), 1500);
-            } catch {
-                setError('Error al guardar el aroma');
-            }
-        }
+        // if (!name.trim()) {
+        //     setError('El nombre es obligatorio');
+        //     return;
+        // }
+        // try {
+        //     await fetch('https://api.darasglowcandle.site/api/scents', {
+        //         method: 'POST',
+        //         headers: { 'Content-Type': 'application/json' },
+        //         body: JSON.stringify({ name }),
+        //     });
+        //     setSuccess('¡Aroma registrado exitosamente!');
+        //     setTimeout(() => {
+        //         setSuccess('');
+        //         navigate('/products');
+        //     }, 1500);
+        // } catch {
+        //     setError('Error al guardar el aroma');
+        // }
     };
 
     const handleEdit = (id: number) => {

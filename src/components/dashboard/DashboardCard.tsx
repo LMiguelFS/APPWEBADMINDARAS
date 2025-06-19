@@ -1,6 +1,6 @@
 import React from 'react';
 import { ArrowUp, ArrowDown, Minus } from 'lucide-react';
-import { DashboardMetric } from '../context/InventoryContext';
+import { DashboardMetric } from '../../context/InventoryContext';
 
 interface DashboardCardProps {
   metric: DashboardMetric;
