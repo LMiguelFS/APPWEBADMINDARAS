@@ -14,7 +14,7 @@ export interface Customer {
 }
 
 export interface Product {
-  id: string;
+  id: number;
   name: string;
   category: string;
   price: number;
@@ -22,7 +22,7 @@ export interface Product {
   stock: number;
   sku: string;
   description: string;
-  imageUrl?: string;
+  image?:string;
   createdAt: Date;
   updatedAt: Date;
 }

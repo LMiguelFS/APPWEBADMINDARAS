@@ -11,7 +11,7 @@ import {
   LogOut,
   MessageSquare
 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 
 interface SidebarProps {
   isOpen: boolean;

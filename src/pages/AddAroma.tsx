@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+
 const AddAroma: React.FC = () => {
     const [name, setName] = useState('');
     const [error, setError] = useState('');
@@ -9,24 +10,24 @@ const AddAroma: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!name.trim()) {
-            setError('El nombre es obligatorio');
-            return;
-        }
-        try {
-            await fetch('https://api.darasglowcandle.site/api/scents', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name }),
-            });
-            setSuccess('¡Aroma registrado exitosamente!');
-            setTimeout(() => {
-                setSuccess('');
-                navigate('/products');
-            }, 1500);
-        } catch {
-            setError('Error al guardar el aroma');
-        }
+        // if (!name.trim()) {
+        //     setError('El nombre es obligatorio');
+        //     return;
+        // }
+        // try {
+        //     await fetch('https://api.darasglowcandle.site/api/scents', {
+        //         method: 'POST',
+        //         headers: { 'Content-Type': 'application/json' },
+        //         body: JSON.stringify({ name }),
+        //     });
+        //     setSuccess('¡Aroma registrado exitosamente!');
+        //     setTimeout(() => {
+        //         setSuccess('');
+        //         navigate('/products');
+        //     }, 1500);
+        // } catch {
+        //     setError('Error al guardar el aroma');
+        // }
     };
 
     return (

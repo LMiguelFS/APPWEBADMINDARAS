@@ -1,10 +1,11 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { authApi } from '../services/api';
+// AuthContext.tsx
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { authService } from '../services/authService';
 import toast from 'react-hot-toast';
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  login: (username: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
   user: any | null;
 }
@@ -12,39 +13,48 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
-  const [user, setUser] = useState<any>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(authService.isAuthenticated());
+  const [user, setUser] = useState<any | null>(null);
 
-  const login = async (username: string, password: string) => {
-    try {
-      // For demo purposes, implement a mock login
-      if (username === 'admin' && password === 'admin') {
-        const mockToken = 'mock-jwt-token';
-        const mockUser = {
-          id: '1',
-          username: 'admin',
-          name: 'Admin User',
-          email: 'admin@example.com'
-        };
-        
-        localStorage.setItem('token', mockToken);
-        setIsAuthenticated(true);
-        setUser(mockUser);
-        return true;
+  useEffect(() => {
+    const initializeUser = async () => {
+      if (authService.isAuthenticated()) {
+        try {
+          const currentUser = await authService.getCurrentUser();
+          if (currentUser) {
+            setUser(currentUser);
+            setIsAuthenticated(true);
+          } else {
+            setIsAuthenticated(false);
+            setUser(null);
+          }
+        } catch (error) {
+          console.error('Error fetching user:', error);
+          setIsAuthenticated(false);
+          setUser(null);
+        }
       }
-      
-      toast.error('Credenciales inválidas. Use admin/admin para iniciar sesión.');
-      return false;
-    } catch (error) {
-      console.error('Login error:', error);
-      toast.error('Error al iniciar sesión. Intente nuevamente.');
+    };
+
+    initializeUser();
+  }, []);
+
+  const login = async (email: string, password: string): Promise<boolean> => {
+    try {
+      await authService.signIn(email, password);
+      const currentUser = await authService.getCurrentUser();
+      setIsAuthenticated(true);
+      setUser(currentUser);
+      return true;
+    } catch (error: any) {
+      toast.error(error.message || 'Error al iniciar sesión');
       return false;
     }
   };
 
   const logout = async () => {
     try {
-      localStorage.removeItem('token');
+      authService.signOut();
       setIsAuthenticated(false);
       setUser(null);
     } catch (error) {
@@ -62,7 +72,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;

@@ -17,7 +17,7 @@ import ForumAdmin from './pages/Forum';
 import AddForma from './pages/AddForma';
 import AddColor from './pages/AddColor';
 import AddAroma from './pages/AddAroma';
-import EditProduct from './components/editProduct';
+import EditProduct from './components/product/editProduct';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -31,14 +31,9 @@ function App() {
         <Router>
           <Routes>
             <Route path="/login" element={<Login />} />
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <Layout />
-                </ProtectedRoute>
-              }
-            >
+            <Route path="/" element={<ProtectedRoute><Layout />
+              </ProtectedRoute>}>
+              {/* Nested routes for admin dashboard */}
               <Route index element={<Dashboard />} />
               <Route path="products" element={<Products />} />
               <Route path="products/add" element={<AddProduct />} />
