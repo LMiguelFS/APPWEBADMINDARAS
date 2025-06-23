@@ -3,17 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, Calendar, Filter, Download } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import SalesTable from '../components/SalesTable';
+import { useMetrics } from '../context/MetricsContext';
 
 const Sales: React.FC = () => {
   const { sales } = useInventory();
   const navigate = useNavigate();
   const [dateFilter, setDateFilter] = useState('all');
 
-  // Calculate total sales amount
-  const totalSalesAmount = sales.reduce((sum, sale) => sum + (sale.salePrice * sale.quantity), 0);
+  const { metrics, loading, error } = useMetrics();
+  if (loading) return <p>Cargando métricas...</p>;
+  if (error) return <p>Error al cargar métricas: {error.message}</p>;
 
-  // Get unique customer names
-  const customers = ['all', ...new Set(sales.map(s => s.customer || 'Walk-in Customer'))];
+
 
   return (
     <div className="space-y-6">
@@ -58,19 +59,17 @@ const Sales: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
             <p className="text-sm font-medium text-gray-500">Ventas Totales</p>
-            <p className="text-2xl font-bold text-gray-900">${totalSalesAmount.toFixed(2)}</p>
+            <p className="text-2xl font-bold text-gray-900">{metrics?.pedidos_totales}</p>
           </div>
 
           <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-            <p className="text-sm font-medium text-gray-500">Transacciones</p>
-            <p className="text-2xl font-bold text-gray-900">{sales.length}</p>
+            <p className="text-sm font-medium text-gray-500">Pedidos pendientes</p>
+            <p className="text-2xl font-bold text-gray-900">{metrics?.pedidos_pendientes}</p>
           </div>
 
           <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-            <p className="text-sm font-medium text-gray-500">Venta Promedio</p>
-            <p className="text-2xl font-bold text-gray-900">
-              ${sales.length > 0 ? (totalSalesAmount / sales.length).toFixed(2) : '0.00'}
-            </p>
+            <p className="text-sm font-medium text-gray-500">Número de Usuarios</p>
+            <p className="text-2xl font-bold text-gray-900">{metrics?.numero_usuarios}</p>
           </div>
         </div>
       </div>
@@ -115,11 +114,7 @@ const Sales: React.FC = () => {
               className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-[#4A55A2] focus:border-[#4A55A2] sm:text-sm transition duration-150 ease-in-out"
               defaultValue="all"
             >
-              {customers.map((customer, index) => (
-                <option key={index} value={customer}>
-                  {customer === 'all' ? 'Todos los clientes' : customer}
-                </option>
-              ))}
+
             </select>
           </div>
         </div>

@@ -1,12 +1,12 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Package, 
+import {
+  LayoutDashboard,
+  Package,
   Users,
-  ShoppingCart, 
-  BarChart3, 
-  Settings, 
+  ShoppingCart,
+  BarChart3,
+  Settings,
   X,
   LogOut,
   MessageSquare
@@ -33,23 +33,21 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
     { name: 'Clientes', path: '/customers', icon: <Users className="mr-3 h-5 w-5" /> },
     { name: 'Ventas', path: '/sales', icon: <ShoppingCart className="mr-3 h-5 w-5" /> },
     { name: 'Reportes', path: '/reports', icon: <BarChart3 className="mr-3 h-5 w-5" /> },
-    { name: 'Foro', path: '/forum', icon: <MessageSquare className="mr-3 h-5 w-5" /> }, 
     { name: 'Configuración', path: '/settings', icon: <Settings className="mr-3 h-5 w-5" /> },
   ];
 
   return (
     <>
       {isOpen && (
-        <div 
-          className="fixed inset-0 z-20 bg-black/50 lg:hidden" 
+        <div
+          className="fixed inset-0 z-20 bg-black/50 lg:hidden"
           onClick={toggleSidebar}
         />
       )}
 
-      <div 
-        className={`fixed top-0 left-0 z-30 h-screen w-64 bg-[#96B7BC] text-white transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+      <div
+        className={`fixed top-0 left-0 z-30 h-screen w-64 bg-[#96B7BC] text-white transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
       >
         <div className="flex h-16 items-center justify-between px-6">
           <div className="flex items-center">
@@ -71,8 +69,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
                 key={link.path}
                 to={link.path}
                 className={({ isActive }) =>
-                  `flex items-center px-4 py-3 text-sm font-medium rounded-md transition-colors duration-150 hover:bg-[#7a9599] ${
-                    isActive ? 'bg-[#7a9599]' : ''
+                  `flex items-center px-4 py-3 text-sm font-medium rounded-md transition-colors duration-150 hover:bg-[#7a9599] ${isActive ? 'bg-[#7a9599]' : ''
                   }`
                 }
                 end={link.path === '/'}

@@ -1,32 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Pencil, Trash2, ArrowLeft } from 'lucide-react';
+import { useColorContext } from '../context/ColorContext';
 
 const AddColor: React.FC = () => {
+    const { colors, loading, addColor, editColor, removeColor } = useColorContext();
+
     const [name, setName] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
-    const [colors, setColors] = useState<{ id: number; name: string }[]>([]);
-    const [loadingColors, setLoadingColors] = useState(false);
     const [editingId, setEditingId] = useState<number | null>(null);
     const navigate = useNavigate();
-
-    // Obtener colores existentes
-    useEffect(() => {
-        const fetchColors = async () => {
-            setLoadingColors(true);
-            try {
-                const res = await fetch('https://api.darasglowcandle.site/api/colors');
-                const data = await res.json();
-                setColors(data);
-            } catch {
-                setColors([]);
-            } finally {
-                setLoadingColors(false);
-            }
-        };
-        fetchColors();
-    }, [success]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -34,37 +18,19 @@ const AddColor: React.FC = () => {
             setError('El nombre es obligatorio');
             return;
         }
-        setError('');
-        if (editingId) {
-            // Editar color existente
-            try {
-                const res = await fetch(`https://api.darasglowcandle.site/api/colors/${editingId}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name }),
-                });
-                if (!res.ok) throw new Error();
-                setSuccess('¡Color modificado exitosamente!');
-                setName('');
-                setEditingId(null);
-                setTimeout(() => setSuccess(''), 1500);
-            } catch {
-                setError('Error al modificar el color');
+        try {
+            if (editingId) {
+                await editColor(editingId, name);
+                setSuccess('¡Color modificado!');
+            } else {
+                await addColor(name);
+                setSuccess('¡Color agregado!');
             }
-        } else {
-            // Agregar color nuevo
-            try {
-                await fetch('https://api.darasglowcandle.site/api/colors', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name }),
-                });
-                setSuccess('¡Color registrado exitosamente!');
-                setName('');
-                setTimeout(() => setSuccess(''), 1500);
-            } catch {
-                setError('Error al guardar el color');
-            }
+            setName('');
+            setEditingId(null);
+            setTimeout(() => setSuccess(''), 1500);
+        } catch {
+            setError('Ocurrió un error');
         }
     };
 
@@ -79,13 +45,10 @@ const AddColor: React.FC = () => {
     };
 
     const handleDelete = async (id: number) => {
-        if (!window.confirm('¿Seguro que deseas eliminar este color?')) return;
+        if (!window.confirm('¿Eliminar este color?')) return;
         try {
-            const res = await fetch(`https://api.darasglowcandle.site/api/colors/${id}`, {
-                method: 'DELETE',
-            });
-            if (!res.ok) throw new Error();
-            setSuccess('¡Color eliminado!');
+            await removeColor(id);
+            setSuccess('Color eliminado');
             setTimeout(() => setSuccess(''), 1500);
         } catch {
             setError('Error al eliminar el color');
@@ -182,7 +145,7 @@ const AddColor: React.FC = () => {
             {/* Panel lateral: lista de colores */}
             <div className="bg-white rounded-lg border border-gray-200 flex-1 p-6 overflow-auto">
                 <h2 className="text-lg font-semibold mb-4">Colores existentes</h2>
-                {loadingColors ? (
+                {loading ? (
                     <div className="text-gray-500">Cargando...</div>
                 ) : (
                     <div className="overflow-x-auto">

@@ -30,9 +30,11 @@ const AddProduct: React.FC = () => {
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
-    //const url = 'https://api.darasglowcandle.site';
-    const url = 'http://127.0.0.1:8000'
+    const url = 'https://api.darasglowcandle.site';
+    //const url = 'http://127.0.0.1:8000';
+
     fetch(url + '/api/forms')
+      .then(res => res.json())
       .then(data => setFormas(data))
       .catch(() => setFormas([]));
 
@@ -103,7 +105,7 @@ const AddProduct: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
-    const url = 'http://127.0.0.1:8000'
+    const url = 'https://api.darasglowcandle.site'
     try {
       const res = await fetch(url + '/api/products', {
         method: 'POST',
