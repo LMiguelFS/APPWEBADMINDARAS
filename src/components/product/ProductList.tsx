@@ -1,37 +1,64 @@
 import React, { useEffect, useState } from 'react';
 import ProductCard from './ProductCard';
+import { useProducts } from '../../context/ProductContext';
 
-interface Product {
+
+interface ProductListProps {
   id: number;
   name: string;
-  detail: string | null;
+  description: string | null;
   price: string;
-  image_url: string | null;
+  imageUrl: string | null;
   colors: { id: number; name: string }[];
   scents: { id: number; name: string }[];
   form?: { id: number; name: string };
 }
 
 const ProductList: React.FC = () => {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<ProductListProps[]>([]);
   const [loading, setLoading] = useState(true);
+  const { getProducts, colorOptions, scentOptions, formOptions } = useProducts();
 
   useEffect(() => {
-    fetch('https://api.darasglowcandle.site/api/products')
-      .then(res => res.json())
-      .then(data => {
-        setProducts(data);
+    const fetchProducts = async () => {
+      if (!getProducts) return;
+
+      setLoading(true);
+      try {
+        const rawProducts = await getProducts();
+
+        const enrichedProducts: ProductListProps[] = rawProducts.map((product, index) => ({
+          id: index + 1,
+          name: product.name,
+          description: product.description || null,
+          price: product.price.toString(),
+          imageUrl: product.imageUrl ?? null, // <- corrección aquí
+          colors: product.colors?.map(id => {
+            const match = colorOptions?.find(c => c.id === id);
+            return match || { id, name: 'Desconocido' };
+          }) || [],
+          scents: product.scents?.map(id => {
+            const match = scentOptions?.find(s => s.id === id);
+            return match || { id, name: 'Desconocido' };
+          }) || [],
+          form: formOptions?.find(f => f.id === product.form_id),
+        }));
+        
+
+        setProducts(enrichedProducts);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        setProducts([]);
+      } finally {
         setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
+      }
+    };
+
+    fetchProducts();
+  }, [getProducts, colorOptions, scentOptions, formOptions]);
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm('¿Seguro que deseas eliminar este producto?')) return;
-    await fetch(`https://api.darasglowcandle.site/api/products/${id}`, {
-      method: 'DELETE',
-    });
-    setProducts(products => products.filter(p => p.id !== id));
+    // lógica para eliminar un producto
   };
 
   if (loading) return <div>Cargando productos...</div>;
@@ -43,8 +70,8 @@ const ProductList: React.FC = () => {
           key={product.id}
           product={{
             ...product,
-            imageUrl: product.image_url,
-            description: product.detail,
+            imageUrl: product.imageUrl,
+            description: product.description,
             price: parseFloat(product.price),
             colors: product.colors,
             scents: product.scents,

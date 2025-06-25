@@ -5,7 +5,8 @@ import { useProducts } from '../context/ProductContext';
 
 const AddProduct: React.FC = () => {
   const navigate = useNavigate();
-  const { createProduct } = useProducts();
+  const { createProduct, formOptions, colorOptions, scentOptions,eventOptions } = useProducts();
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,7 +19,6 @@ const AddProduct: React.FC = () => {
       setErrors({ general: 'Error al registrar el producto' });
     }
   };
-
 
   const [formData, setFormData] = useState({
     name: '',
@@ -45,29 +45,12 @@ const AddProduct: React.FC = () => {
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
-    const url = 'https://api.darasglowcandle.site';
-    //const url = 'http://127.0.0.1:8000';
-
-    fetch(url + '/api/forms')
-      .then(res => res.json())
-      .then(data => setFormas(data))
-      .catch(() => setFormas([]));
-
-    fetch(url + '/api/colors')
-      .then(res => res.json())
-      .then(data => setColores(data))
-      .catch(() => setColores([]));
-
-    fetch(url + '/api/scents')
-      .then(res => res.json())
-      .then(data => setAromas(data))
-      .catch(() => setAromas([]));
-
-    fetch(url + '/api/events')
-      .then(res => res.json())
-      .then(data => setEventos(data))
-      .catch(() => setEventos([]));
-  }, []);
+    // Actualiza los estados locales con los datos del contexto
+    setFormas(formOptions);
+    setColores(colorOptions);
+    setAromas(scentOptions);
+    setEventos(eventOptions);
+  }, [formOptions, colorOptions, scentOptions, eventOptions]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -116,27 +99,6 @@ const AddProduct: React.FC = () => {
     arr.splice(idx, 1);
     setFormData({ ...formData, [field]: arr });
   };
-
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   if (!validateForm()) return;
-  //   const url = 'https://api.darasglowcandle.site'
-  //   try {
-  //     const res = await fetch(url + '/api/products', {
-  //       method: 'POST',
-  //       headers: { 'Content-Type': 'application/json' },
-  //       body: JSON.stringify(formData),
-  //     });
-  //     if (!res.ok) throw new Error('Error al registrar');
-  //     setSuccess('¡Producto registrado exitosamente!');
-  //     setTimeout(() => {
-  //       setSuccess('');
-  //       navigate('/products');
-  //     }, 1500);
-  //   } catch {
-  //     setErrors({ general: 'Error al registrar el producto' });
-  //   }
-  // };
 
   return (
     <div>

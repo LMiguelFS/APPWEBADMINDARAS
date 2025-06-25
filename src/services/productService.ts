@@ -1,6 +1,6 @@
 // src/services/productsApi.ts
 import axios from 'axios';
-import { Product} from '../types/product';
+//import { Product} from '../types/product';
 
 const API_PRODUCTS_URL = import.meta.env.VITE_API_PRODUCTS_URL;
 
@@ -25,4 +25,9 @@ export const productsApi = {
     }),
   update: (id: string, data: any) => api.put(`/products/${id}`, data),
   delete: (id: string) => api.delete(`/products/${id}`),
+   // 🔽 Nuevas funciones para referencias
+   getColors: () => api.get('/colors'),
+   getScents: () => api.get('/scents'),
+   getForms: () => api.get('/forms'),
+   getEvents: () => api.get('/events'),
 };

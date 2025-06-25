@@ -1,15 +1,51 @@
-// src/context/ProductsContext.tsx
-import React, { createContext, useContext } from 'react';
+// ProductContext.tsx
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { productsApi } from '../services/productService';
 import { Product } from '../types/product';
 
+type Reference = { id: number; name: string };
+
 type ProductContextType = {
   createProduct: (data: Product) => Promise<void>;
+  getProducts: () => Promise<Product[]>;
+  getProductById: (id: string) => Promise<Product>;
+  updateProduct: (id: string, data: any) => Promise<void>;
+  deleteProduct: (id: string) => Promise<void>;
+  colorOptions: Reference[];
+  scentOptions: Reference[];
+  formOptions: Reference[];
+  eventOptions: Reference[];
 };
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
 export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [colorOptions, setColorOptions] = useState<Reference[]>([]);
+  const [scentOptions, setScentOptions] = useState<Reference[]>([]);
+  const [formOptions, setFormOptions] = useState<Reference[]>([]);
+  const [eventOptions, setEventOptions] = useState<Reference[]>([]);
+
+  useEffect(() => {
+    const fetchReferences = async () => {
+      try {
+        const [colorsRes, scentsRes, formsRes,eventRes] = await Promise.all([
+          productsApi.getColors(),
+          productsApi.getScents(),
+          productsApi.getForms(),
+          productsApi.getEvents(),
+        ]);
+        setColorOptions(colorsRes.data);
+        setScentOptions(scentsRes.data);
+        setFormOptions(formsRes.data);
+        setEventOptions(eventRes.data)
+      } catch (error) {
+        console.error('Error loading reference data', error);
+      }
+    };
+
+    fetchReferences();
+  }, []);
+
   const createProduct = async (data: Product) => {
     const formData = new FormData();
     formData.append('name', data.name);
@@ -30,8 +66,38 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     await productsApi.create(formData);
   };
 
+  const getProducts = async () => {
+    const response = await productsApi.getAll();
+    return response.data;
+  };
+
+  const getProductById = async (id: string) => {
+    const response = await productsApi.getById(id);
+    return response.data;
+  };
+
+  const updateProduct = async (id: string, data: any) => {
+    await productsApi.update(id, data);
+  };
+
+  const deleteProduct = async (id: string) => {
+    await productsApi.delete(id);
+  };
+
   return (
-    <ProductContext.Provider value={{ createProduct }}>
+    <ProductContext.Provider
+      value={{
+        createProduct,
+        getProducts,
+        getProductById,
+        updateProduct,
+        deleteProduct,
+        colorOptions,
+        scentOptions,
+        formOptions,
+        eventOptions,
+      }}
+    >
       {children}
     </ProductContext.Provider>
   );

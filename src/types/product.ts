@@ -4,6 +4,7 @@ export interface Product {
   description?: string;
   dimensions?: string;
   image?: File | null;
+  imageUrl?: string | null;
   form_id: number;
   event_id: number;
   burnTime?: string;
