@@ -4,8 +4,13 @@ import axios from 'axios';
 
 const API_PRODUCTS_URL = import.meta.env.VITE_API_PRODUCTS_URL;
 
+const token = localStorage.getItem('token');
 const api = axios.create({
   baseURL: API_PRODUCTS_URL,
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization' :`Bearer ${token}`
+  },
 });
 
 api.interceptors.request.use((config) => {
