@@ -52,7 +52,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
         <div className="flex h-16 items-center justify-between px-6">
           <div className="flex items-center">
             <Package className="h-8 w-8" />
-            <span className="ml-2 text-xl font-semibold">Velas Artesanales</span>
+            <span className="ml-2 text-xl font-semibold">Daras Glow Candle</span>
           </div>
           <button
             className="rounded-md lg:hidden"

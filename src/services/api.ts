@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3000/api/v1'; // Updated to local development server
+const API_URL = import.meta.env.VITE_API_USERS_URL; // Updated to local development server
 
 const api = axios.create({
     baseURL: API_URL,

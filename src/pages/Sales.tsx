@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Calendar, Filter, Download } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
-import SalesTable from '../components/SalesTable';
+// import SalesTable from '../components/SalesTable';
 import { useMetrics } from '../context/MetricsContext';
 
 const Sales: React.FC = () => {
@@ -25,7 +25,7 @@ const Sales: React.FC = () => {
             Gestiona y registra tus transacciones de ventas
           </p>
         </div>
-        <div className="mt-4 sm:mt-0">
+        {/* <div className="mt-4 sm:mt-0">
           <button
             onClick={() => navigate('/sales/add')}
             className="flex items-center px-4 py-2 bg-[#4A55A2] text-white rounded-md hover:bg-[#38467f] transition-colors duration-150"
@@ -33,7 +33,7 @@ const Sales: React.FC = () => {
             <Plus className="h-5 w-5 mr-1" />
             Registrar Venta
           </button>
-        </div>
+        </div> */}
       </div>
 
       {/* Resumen de ventas */}
@@ -120,7 +120,7 @@ const Sales: React.FC = () => {
         </div>
 
         {/* Tabla de ventas */}
-        <SalesTable />
+        {/* <SalesTable /> */}
       </div>
     </div>
   );

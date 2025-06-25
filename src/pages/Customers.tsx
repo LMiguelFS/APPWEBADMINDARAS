@@ -1,73 +1,38 @@
 import React, { useEffect, useState } from 'react';
 import { Plus, Search, Filter } from 'lucide-react';
-
-type Customer = {
-  id: number;
-  name: string;
-  email: string;
-  address: string;
-  phone: string;
-  status: string;
-};
+import { useUsers } from '../context/UserContext';  // ajusta la ruta según corresponda
 
 const Customers: React.FC = () => {
-  const [customers, setCustomers] = useState<Customer[]>([]);
+  const { users, loading, fetchUsers } = useUsers();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [loading, setLoading] = useState(false);
 
-  // Buscar clientes desde la API usando el parámetro ?search
-  const fetchCustomers = async (search: string = '') => {
-    setLoading(true);
-    try {
-      const url = search
-        ? `http://localhost:8080/api/clientes.php?search=${encodeURIComponent(search)}`
-        : 'http://localhost:8080/api/clientes.php';
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('No se pudieron cargar los clientes');
-      const data = await res.json();
-      setCustomers(
-        data.map((c: any) => ({
-          id: c.id,
-          name: c.name,
-          email: c.email,
-          address: c.direccion,
-          phone: c.celular,
-          status: 'active', // Ajusta según tu lógica
-        }))
-      );
-    } catch (err: any) {
-      alert(err.message);
-    }
-    setLoading(false);
-  };
-
+  // Llamar fetchUsers al montar componente
   useEffect(() => {
-    fetchCustomers();
-  }, []);
+    fetchUsers();
+  }, [fetchUsers]);
 
-  // Buscar automáticamente al escribir
-  useEffect(() => {
-    const delayDebounce = setTimeout(() => {
-      fetchCustomers(searchTerm);
-    }, 400);
-    return () => clearTimeout(delayDebounce);
-  }, [searchTerm]);
+  // Si quieres buscar usuarios filtrados, podrías adaptar fetchUsers en el contexto para aceptar un parámetro 'search'
+  // o filtrar localmente:
+  // Aquí te filtro localmente para no modificar mucho el contexto
 
-  // Filtrar por estado (el filtro por texto ya lo hace la API)
-  const filteredCustomers = customers.filter(customer => {
-    const matchesStatus = statusFilter === 'all' || customer.status === statusFilter;
-    return matchesStatus;
+  // Filtrar usuarios por búsqueda y estado
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase());
+    //const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
+    //return matchesSearch && matchesStatus;
+    return matchesSearch ;
   });
 
-  const getStatusBadgeColor = (status: Customer['status']) => {
+  // Cambiar getStatusBadgeColor para el estado que tengas en User
+  const getStatusBadgeColor = (status: boolean) => {
     switch (status) {
-      case 'active':
+      case true:
         return 'bg-green-100 text-green-800';
-      case 'pending':
+      case false:
         return 'bg-yellow-100 text-yellow-800';
-      case 'completed':
-        return 'bg-blue-100 text-blue-800';
+      // case 'completed':
+      //   return 'bg-blue-100 text-blue-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -75,11 +40,13 @@ const Customers: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* ... resto igual, pero reemplaza customers por filteredUsers y loading de contexto */}
+
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Clientes</h1>
           <p className="mt-1 text-sm text-gray-500">
-            Gestiona tu base de {customers.length} clientes
+            Gestiona tu base de {users.length} clientes
           </p>
         </div>  
       </div>
@@ -126,43 +93,27 @@ const Customers: React.FC = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    ID
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Cliente
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Email
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Dirección
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Celular
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Estado
-                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DNI</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Celular</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredCustomers.map((customer) => (
-                  <tr key={customer.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">{customer.id}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{customer.name}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{customer.email}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{customer.address}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{customer.phone}</td>
+                {filteredUsers.map(user => (
+                  <tr key={user.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">{user.name}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{user.email}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{user.dni}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{user.phone}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeColor(customer.status)}`}>
-                        {customer.status === 'active'
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeColor(user.status)}`}>
+                        {user.status === true
                           ? 'Activo'
-                          : customer.status === 'pending'
-                            ? 'Pendiente'
-                            : customer.status === 'completed'
-                              ? 'Completado'
-                              : customer.status}
+                            : user.status === false
+                              ? 'Inactivo'
+                              : user.status}
                       </span>
                     </td>
                   </tr>

@@ -9,18 +9,19 @@ import { ScentsProvider } from './context/ScentsContext';
 import { EventProvider } from './context/EventContext';
 import { MetricsProvider } from './context/MetricsContext';
 import { ProductProvider } from './context/ProductContext';
+import { UsersProvider } from './context/UserContext';
 
 import Dashboard from './pages/Dashboard';
 import Products from './pages/Products';
 import Customers from './pages/Customers';
 import Sales from './pages/Sales';
-import Reports from './pages/Reports';
+// import Reports from './pages/Reports';
 import Layout from './components/Layout';
-import ProductDetail from './pages/ProductDetail';
+// import ProductDetail from './pages/ProductDetail';
 import AddProduct from './pages/AddProduct';
-import AddSale from './pages/AddSale';
+// import AddSale from './pages/AddSale';
 import Login from './pages/Login';
-import ForumAdmin from './pages/Forum';
+// import ForumAdmin from './pages/Forum';
 
 import AddForma from './components/AddForma';
 import AddColor from './components/AddColor';
@@ -37,6 +38,7 @@ function App() {
   return (
     <AuthProvider>
       <InventoryProvider>
+      <UsersProvider>
         <ProductProvider>
         <FormProvider>
           <ColorProvider>
@@ -52,12 +54,12 @@ function App() {
                         <Route index element={<Dashboard />} />
                         <Route path="products" element={<Products />} />
                         <Route path="products/add" element={<AddProduct />} />
-                        <Route path="products/:id" element={<ProductDetail />} />
+                        {/* <Route path="products/:id" element={<ProductDetail />} /> */}
                         <Route path="customers" element={<Customers />} />
                         <Route path="sales" element={<Sales />} />
-                        <Route path="sales/add" element={<AddSale />} />
-                        <Route path="reports" element={<Reports />} />
-                        <Route path="forum" element={<ForumAdmin />} />
+                        {/* <Route path="sales/add" element={<AddSale />} /> */}
+                        {/* <Route path="reports" element={<Reports />} /> */}
+                        {/* <Route path="forum" element={<ForumAdmin />} /> */}
                         <Route path="formas/add" element={<AddForma />} />
                         <Route path="color/add" element={<AddColor />} />
                         <Route path="aromas/add" element={<AddAroma />} />
@@ -72,6 +74,7 @@ function App() {
           </ColorProvider>
         </FormProvider>
         </ProductProvider>
+      </UsersProvider>
       </InventoryProvider>
     </AuthProvider >
   );

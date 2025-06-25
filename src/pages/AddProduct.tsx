@@ -25,7 +25,6 @@ const AddProduct: React.FC = () => {
     price: 0,
     description: '',
     dimensions: '',
-    // imageUrl: '', // Cambiaremos el manejo de este campo
     image: null as File | null, // Nuevo campo para el archivo
     form_id: 0,
     event_id: 0,

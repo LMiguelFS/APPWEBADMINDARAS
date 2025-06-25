@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { customersApi } from '../services/userService'; 
+import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { customersApi } from '../services/userService';
 import { User } from '../types/user';
 import toast from 'react-hot-toast';
 
@@ -20,7 +20,7 @@ export const UsersProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
       const response = await customersApi.getAll();
@@ -31,9 +31,9 @@ export const UsersProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const getUserById = async (id: string) => {
+  const getUserById = useCallback(async (id: string) => {
     setLoading(true);
     try {
       const response = await customersApi.getById(id);
@@ -44,35 +44,35 @@ export const UsersProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const updateUser = async (id: string, data: Partial<User>) => {
+  const updateUser = useCallback(async (id: string, data: Partial<User>) => {
     setLoading(true);
     try {
       await customersApi.update(id, data);
       toast.success('Usuario actualizado correctamente');
-      await fetchUsers(); // Refresh the list
+      await fetchUsers(); // Refresh list
     } catch (error) {
       toast.error('Error al actualizar el usuario');
       console.error(error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetchUsers]);
 
-  const deleteUser = async (id: string) => {
+  const deleteUser = useCallback(async (id: string) => {
     setLoading(true);
     try {
       await customersApi.delete(id);
       toast.success('Usuario desactivado correctamente');
-      await fetchUsers(); // Refresh the list
+      await fetchUsers(); // Refresh list
     } catch (error) {
       toast.error('Error al desactivar el usuario');
       console.error(error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetchUsers]);
 
   return (
     <UsersContext.Provider

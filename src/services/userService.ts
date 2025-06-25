@@ -1,21 +1,23 @@
 import axios from 'axios';
-const API_USERS_URL = import.meta.env.VITE_API_ORDERS_URL;
+const API_USERS_URL = import.meta.env.VITE_API_USERS_URL;
 
+const token = localStorage.getItem('token');
 const api = axios.create({
   baseURL: API_USERS_URL,
   headers: {
     'Content-Type': 'application/json',
+    'Authorization' :`Bearer ${token}`
   },
 });
 
 // Para agregar el token de autorización
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+// api.interceptors.request.use((config) => {
+//   const token = localStorage.getItem('token');
+//   if (token) {
+//     config.headers.Authorization = `Bearer ${token}`;
+//   }
+//   return config;
+// });
 
 export const customersApi = {
   getAll: () => api.get('/users'),

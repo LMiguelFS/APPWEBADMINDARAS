@@ -4,7 +4,7 @@ import { Plus, AlertTriangle, TrendingUp } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import DashboardCard from '../components/dashboard/DashboardCard';
 import ProductCard from '../components/product/ProductCard';
-import SalesTable from '../components/SalesTable';
+// import SalesTable from '../components/SalesTable';
 
 import { customersApi } from '../services/userService';
 import { User } from '../types/user';
@@ -149,7 +149,7 @@ const Dashboard: React.FC = () => {
               Ver todas
             </button>
           </div>
-          <SalesTable limit={5} />
+          {/* <SalesTable limit={5} /> */}
         </div>
       </div>
 

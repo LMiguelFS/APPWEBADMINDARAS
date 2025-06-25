@@ -17,7 +17,7 @@ api.interceptors.request.use((config) => {
 });
 
 export const productsApi = {
-  getAll: () => api.get('/products'),
+  getAll: () => api.get('/productsAll'),
   getById: (id: string) => api.get(`/products/${id}`),
   create: (data: FormData) =>
     api.post('/products', data, {
