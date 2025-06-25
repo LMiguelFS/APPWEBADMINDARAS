@@ -1,15 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+import { useProducts } from '../../context/ProductContext';
 
 const EditProduct: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const {
+    getProductById,
+    updateProduct,
+    formOptions,
+    colorOptions,
+    scentOptions,
+    eventOptions,
+  } = useProducts();
+  
 
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    price: '',
+    price: 0,
     form_id: 0,
     colors: [] as number[],
     scents: [] as number[],
@@ -21,45 +31,34 @@ const EditProduct: React.FC = () => {
     ingredients: [] as string[],
     instructions: [] as string[],
   });
-  const [formas, setFormas] = useState<{ id: number; name: string }[]>([]);
-  const [colores, setColores] = useState<{ id: number; name: string }[]>([]);
-  const [aromas, setAromas] = useState<{ id: number; name: string }[]>([]);
-  const [eventos, setEventos] = useState<{ id: number; name: string }[]>([]);
+  // const [formas, setFormas] = useState<{ id: number; name: string }[]>([]);
+  // const [colores, setColores] = useState<{ id: number; name: string }[]>([]);
+  // const [aromas, setAromas] = useState<{ id: number; name: string }[]>([]);
+  // const [eventos, setEventos] = useState<{ id: number; name: string }[]>([]);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // Cargar producto
-    fetch(`https://api.darasglowcandle.site/api/products/${id}`)
-      .then(res => res.json())
-      .then(data => {
-        setFormData({
-          name: data.name || '',
-          description: data.description || '',
-          price: data.price || '',
-          form_id: data.form_id || 0,
-          colors: data.colors ? data.colors.map((c: any) => Number(c.id)) : [],
-          scents: data.scents ? data.scents.map((s: any) => Number(s.id)) : [],
-          dimensions: data.dimensions || '',
-          imageUrl: data.imageUrl || '',
-          event_id: data.event_id || 0,
-          burnTime: data.burnTime || '',
-          featured: data.featured || false,
-          ingredients: data.ingredients || [],
-          instructions: data.instructions || [],
-        });
+    if (!id) return;
+    getProductById(id).then(data => {
+      setFormData({
+        name: data.name || '',
+        description: data.description || '',
+        price: data.price || 0,
+        form_id: data.form_id || 0,
+        colors: data.colors?.map((c: any) => Number(c.id)) || [],
+        scents: data.scents?.map((s: any) => Number(s.id)) || [],
+        dimensions: data.dimensions || '',
+        imageUrl: data.imageUrl || '',
+        event_id: data.event_id || 0,
+        burnTime: data.burnTime || '',
+        featured: data.featured || false,
+        ingredients: data.ingredients || [],
+        instructions: data.instructions || [],
       });
-
-    // Cargar formas, colores y aromas
-    fetch('https://api.darasglowcandle.site/api/forms')
-      .then(res => res.json()).then(setFormas);
-    fetch('https://api.darasglowcandle.site/api/colors')
-      .then(res => res.json()).then(setColores);
-    fetch('https://api.darasglowcandle.site/api/scents')
-      .then(res => res.json()).then(setAromas);
-    fetch('https://api.darasglowcandle.site/api/events')
-      .then(res => res.json()).then(setEventos);
-  }, [id]);
+    }).catch(() => setError('Error al cargar el producto'));
+  }, [id, getProductById]);
+  
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -103,28 +102,21 @@ const EditProduct: React.FC = () => {
     e.preventDefault();
     setError('');
     setSuccess('');
+  
+    if (!id) {
+      setError('ID de producto inválido');
+      return;
+    }
+  
     try {
       const payload = {
-        name: formData.name,
-        description: formData.description,
+        ...formData,
         price: Number(formData.price),
         form_id: Number(formData.form_id),
-        colors: formData.colors,
-        scents: formData.scents,
-        dimensions: formData.dimensions,
-        imageUrl: formData.imageUrl,
         event_id: Number(formData.event_id),
-        burnTime: formData.burnTime,
-        featured: formData.featured,
-        ingredients: formData.ingredients,
-        instructions: formData.instructions,
       };
-      const res = await fetch(`https://api.darasglowcandle.site/api/products/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error('Error al actualizar');
+  
+      await updateProduct(id, payload);
       setSuccess('¡Producto actualizado!');
       setTimeout(() => navigate('/products'), 1200);
     } catch {
@@ -189,7 +181,7 @@ const EditProduct: React.FC = () => {
             required
           >
             <option value={0}>Selecciona una forma</option>
-            {formas.map(f => (
+            {formOptions.map(f => (
               <option key={f.id} value={f.id}>{f.name}</option>
             ))}
           </select>
@@ -197,7 +189,7 @@ const EditProduct: React.FC = () => {
         <div>
           <label className="block text-sm font-medium text-gray-700">Colores</label>
           <div className="flex flex-wrap gap-3 mt-2">
-            {colores.map(c => (
+            {colorOptions.map(c => (
               <label key={c.id} className="flex items-center gap-1">
                 <input
                   type="checkbox"
@@ -225,7 +217,7 @@ const EditProduct: React.FC = () => {
         <div>
           <label className="block text-sm font-medium text-gray-700">Aromas</label>
           <div className="flex flex-wrap gap-3 mt-2">
-            {aromas.map(a => (
+            {scentOptions.map(a => (
               <label key={a.id} className="flex items-center gap-1">
                 <input
                   type="checkbox"
@@ -283,7 +275,7 @@ const EditProduct: React.FC = () => {
             required
           >
             <option value={0}>Selecciona un evento</option>
-            {eventos.map(ev => (
+            {eventOptions.map(ev => (
               <option key={ev.id} value={ev.id}>{ev.name}</option>
             ))}
           </select>

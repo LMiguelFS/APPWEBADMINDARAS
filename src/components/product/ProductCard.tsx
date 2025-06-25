@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 
 interface ProductCardProps {
   product: {
@@ -14,10 +14,10 @@ interface ProductCardProps {
     scents?: { id: number; name: string }[];
     form?: { id: number; name: string };
   };
-  onDelete?: (id: number) => void;
+  // onDelete?: (id: number) => void;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, onDelete }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const navigate = useNavigate();
 
   return (
@@ -66,14 +66,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onDelete }) => {
             >
               <Pencil className="h-5 w-5 text-[#4A55A2]" />
             </button>
-            <button
+            {/* <button
               type="button"
               className="p-2 rounded hover:bg-red-100"
               title="Eliminar"
               onClick={() => onDelete && onDelete(product.id)}
             >
               <Trash2 className="h-5 w-5 text-red-500" />
-            </button>
+            </button> */}
           </div>
         </div>
       </div>

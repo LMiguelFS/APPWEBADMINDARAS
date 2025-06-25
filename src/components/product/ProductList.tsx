@@ -57,9 +57,9 @@ const ProductList: React.FC = () => {
     fetchProducts();
   }, [getProducts, colorOptions, scentOptions, formOptions]);
 
-  const handleDelete = async (id: number) => {
-    // lógica para eliminar un producto
-  };
+  // const handleDelete = async (id: number) => {
+  //   // lógica para eliminar un producto
+  // };
 
   if (loading) return <div>Cargando productos...</div>;
 
@@ -77,7 +77,6 @@ const ProductList: React.FC = () => {
             scents: product.scents,
             form: product.form,
           }}
-          onDelete={handleDelete}
         />
       ))}
     </div>
