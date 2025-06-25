@@ -1,17 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Package } from 'lucide-react';
+import { useProducts } from '../context/ProductContext';
 
 const AddProduct: React.FC = () => {
   const navigate = useNavigate();
+  const { createProduct } = useProducts();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+
+    try {
+      await createProduct(formData);
+      setSuccess('¡Producto registrado exitosamente!');
+    } catch (error) {
+      setErrors({ general: 'Error al registrar el producto' });
+    }
+  };
+
 
   const [formData, setFormData] = useState({
     name: '',
     price: 0,
     description: '',
     dimensions: '',
-    imageUrl: '', // Cambiaremos el manejo de este campo
-    imageFile: null as File | null, // Nuevo campo para el archivo
+    // imageUrl: '', // Cambiaremos el manejo de este campo
+    image: null as File | null, // Nuevo campo para el archivo
     form_id: 0,
     event_id: 0,
     burnTime: '',
@@ -102,26 +117,26 @@ const AddProduct: React.FC = () => {
     setFormData({ ...formData, [field]: arr });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateForm()) return;
-    const url = 'https://api.darasglowcandle.site'
-    try {
-      const res = await fetch(url + '/api/products', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-      if (!res.ok) throw new Error('Error al registrar');
-      setSuccess('¡Producto registrado exitosamente!');
-      setTimeout(() => {
-        setSuccess('');
-        navigate('/products');
-      }, 1500);
-    } catch {
-      setErrors({ general: 'Error al registrar el producto' });
-    }
-  };
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   if (!validateForm()) return;
+  //   const url = 'https://api.darasglowcandle.site'
+  //   try {
+  //     const res = await fetch(url + '/api/products', {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify(formData),
+  //     });
+  //     if (!res.ok) throw new Error('Error al registrar');
+  //     setSuccess('¡Producto registrado exitosamente!');
+  //     setTimeout(() => {
+  //       setSuccess('');
+  //       navigate('/products');
+  //     }, 1500);
+  //   } catch {
+  //     setErrors({ general: 'Error al registrar el producto' });
+  //   }
+  // };
 
   return (
     <div>
@@ -198,13 +213,15 @@ const AddProduct: React.FC = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Imagen (URL)
+                Imagen <span className="text-red-500">*</span>
               </label>
               <input
-                type="text"
-                name="imageUrl"
-                value={formData.imageUrl}
-                onChange={handleInputChange}
+                type="file"
+                accept="image/*"
+                onChange={e => {
+                  const file = e.target.files?.[0] || null;
+                  setFormData(prev => ({ ...prev, image: file }));
+                }}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"
               />
             </div>

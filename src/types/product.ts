@@ -1,13 +1,16 @@
 export interface Product {
-  id: string;
   name: string;
-  category: string;
   price: number;
-  cost: number;
-  stock: number;
-  sku: string;
-  description: string;
-  imageUrl?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  description?: string;
+  dimensions?: string;
+  image?: File | null;
+  form_id: number;
+  event_id: number;
+  burnTime?: string;
+  status?: boolean;
+  featured?: boolean;
+  ingredients?: string[]; // Puedes cambiar a otro tipo si es más complejo
+  instructions?: string[];
+  colors?: number[]; // IDs de colores
+  scents?: number[]; // IDs de aromas
 }

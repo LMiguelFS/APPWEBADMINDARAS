@@ -8,6 +8,7 @@ import { ColorProvider } from './context/ColorContext';
 import { ScentsProvider } from './context/ScentsContext';
 import { EventProvider } from './context/EventContext';
 import { MetricsProvider } from './context/MetricsContext';
+import { ProductProvider } from './context/ProductContext';
 
 import Dashboard from './pages/Dashboard';
 import Products from './pages/Products';
@@ -36,6 +37,7 @@ function App() {
   return (
     <AuthProvider>
       <InventoryProvider>
+        <ProductProvider>
         <FormProvider>
           <ColorProvider>
             <ScentsProvider>
@@ -69,6 +71,7 @@ function App() {
             </ScentsProvider>
           </ColorProvider>
         </FormProvider>
+        </ProductProvider>
       </InventoryProvider>
     </AuthProvider >
   );
