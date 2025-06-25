@@ -16,40 +16,15 @@ const Customers: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [loading, setLoading] = useState(false);
 
-  // Buscar clientes desde la API usando el parámetro ?search
-  const fetchCustomers = async (search: string = '') => {
-    setLoading(true);
-    try {
-      const url = search
-        ? `http://localhost:8080/api/clientes.php?search=${encodeURIComponent(search)}`
-        : 'http://localhost:8080/api/clientes.php';
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('No se pudieron cargar los clientes');
-      const data = await res.json();
-      setCustomers(
-        data.map((c: any) => ({
-          id: c.id,
-          name: c.name,
-          email: c.email,
-          address: c.direccion,
-          phone: c.celular,
-          status: 'active', // Ajusta según tu lógica
-        }))
-      );
-    } catch (err: any) {
-      alert(err.message);
-    }
-    setLoading(false);
-  };
+
 
   useEffect(() => {
-    fetchCustomers();
+    ;
   }, []);
 
   // Buscar automáticamente al escribir
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
-      fetchCustomers(searchTerm);
     }, 400);
     return () => clearTimeout(delayDebounce);
   }, [searchTerm]);
@@ -81,7 +56,7 @@ const Customers: React.FC = () => {
           <p className="mt-1 text-sm text-gray-500">
             Gestiona tu base de {customers.length} clientes
           </p>
-        </div>  
+        </div>
       </div>
 
       <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">

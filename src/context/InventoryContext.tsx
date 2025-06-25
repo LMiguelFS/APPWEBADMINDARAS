@@ -22,7 +22,7 @@ export interface Product {
   stock: number;
   sku: string;
   description: string;
-  image?:string;
+  image?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -71,37 +71,37 @@ export const InventoryProvider: React.FC<{ children: ReactNode }> = ({ children 
   // Products queries
   const { data: products = [], isLoading: productsLoading, error: productsError } = useQuery(
     'products',
-    async () => {
+    /*async () => {
       const response = await productsApi.getAll();
       return response.data;
-    }
+    }*/
   );
 
   // Customers queries
   const { data: customers = [], isLoading: customersLoading, error: customersError } = useQuery(
     'customers',
-    async () => {
+    /*async () => {
       const response = await customersApi.getAll();
       return response.data;
-    }
+    }*/
   );
 
   // Sales queries
   const { data: sales = [], isLoading: salesLoading, error: salesError } = useQuery(
     'sales',
-    async () => {
+    /*async () => {
       const response = await salesApi.getAll();
       return response.data;
-    }
+    }*/
   );
 
   // Dashboard metrics query
   const { data: dashboardMetrics = [], isLoading: metricsLoading } = useQuery(
     'dashboardMetrics',
-    async () => {
+    /*async () => {
       const response = await salesApi.getDashboardMetrics();
       return response.data;
-    }
+    }*/
   );
 
   // Mutations

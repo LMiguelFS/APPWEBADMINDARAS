@@ -20,7 +20,7 @@ api.interceptors.request.use((config) => {
 
 // Products API
 export const productsApi = {
-    getAll: () => api.get('/products'),
+    //getAll: () => api.get('/products'),
     getById: (id: string) => api.get(`/products/${id}`),
     create: (data: any) => api.post('/products', data), // Aquí se realiza el POST
     update: (id: string, data: any) => api.put(`/products/${id}`, data),
@@ -29,7 +29,7 @@ export const productsApi = {
 
 // Customers API
 export const customersApi = {
-    getAll: () => api.get('/customers'),
+    //getAll: () => api.get('/customers'),
     getById: (id: string) => api.get(`/customers/${id}`),
     create: (data: any) => api.post('/customers', data),
     update: (id: string, data: any) => api.put(`/customers/${id}`, data),
@@ -38,10 +38,10 @@ export const customersApi = {
 
 // Sales API
 export const salesApi = {
-    getAll: () => api.get('/sales'),
+    //getAll: () => api.get('/sales'),
     getById: (id: string) => api.get(`/sales/${id}`),
     create: (data: any) => api.post('/sales', data),
-    getDashboardMetrics: () => api.get('/sales/metrics'),
+    //getDashboardMetrics: () => api.get('/sales/metrics'),
 };
 
 // Auth API

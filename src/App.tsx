@@ -15,7 +15,7 @@ import Customers from './pages/Customers';
 import Sales from './pages/Sales';
 import Reports from './pages/Reports';
 import Layout from './components/Layout';
-import ProductDetail from './pages/ProductDetail';
+//import ProductDetail from './pages/ProductDetail';
 import AddProduct from './pages/AddProduct';
 import AddSale from './pages/AddSale';
 import Login from './pages/Login';
@@ -50,7 +50,7 @@ function App() {
                         <Route index element={<Dashboard />} />
                         <Route path="products" element={<Products />} />
                         <Route path="products/add" element={<AddProduct />} />
-                        <Route path="products/:id" element={<ProductDetail />} />
+
                         <Route path="customers" element={<Customers />} />
                         <Route path="sales" element={<Sales />} />
                         <Route path="sales/add" element={<AddSale />} />
