@@ -32,7 +32,11 @@ const Products: React.FC = () => {
     fetch();
   }, [getProducts]);
 
-  const categories = ['all', ...new Set(products.map((p: any) => p.category))];
+  const categories = ['all', ...new Set(
+    products
+      .map((p: any) => p.category)
+      .filter((cat) => typeof cat === 'string')
+  )];
 
   const filteredProducts = products.filter((product: any) => {
     const matchesSearch =
@@ -98,7 +102,11 @@ const Products: React.FC = () => {
           >
             {categories.map((category) => (
               <option key={category} value={category}>
-                {category === 'all' ? 'Todos' : category.charAt(0).toUpperCase() + category.slice(1)}
+                {category === 'all'
+                  ? 'Todos'
+                  : typeof category === 'string'
+                    ? category.charAt(0).toUpperCase() + category.slice(1)
+                    : ''}
               </option>
             ))}
           </select>
