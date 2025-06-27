@@ -9,9 +9,10 @@ export const getScents = async (): Promise<Forma[]> => {
 };
 
 export const createScent = async (data: { name: string }): Promise<Forma> => {
+    const token = localStorage.getItem('token');
     const res = await fetch(`${API_PRODUCTS_URL}/scents`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json','Authorization': `Bearer ${token}` },
         body: JSON.stringify(data),
     });
     if (!res.ok) throw new Error('Error al crear aroma');
@@ -19,9 +20,10 @@ export const createScent = async (data: { name: string }): Promise<Forma> => {
 };
 
 export const updateScent = async (id: number, data: { name: string }): Promise<Forma> => {
+    const token = localStorage.getItem('token');
     const res = await fetch(`${API_PRODUCTS_URL}/scents/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json','Authorization': `Bearer ${token}` },
         body: JSON.stringify(data),
     });
     if (!res.ok) throw new Error('Error al actualizar aroma');
