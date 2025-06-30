@@ -56,7 +56,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           )}
         </div>
         <div className="flex items-end justify-between mt-auto">
-          <span className="text-base font-bold text-gray-900">${product.price}</span>
+          <span className="text-base font-bold text-gray-900">S/ {product.price}</span>
           <div className="flex gap-2">
             <button
               type="button"
@@ -69,10 +69,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             {/* <button
               type="button"
               className="p-2 rounded hover:bg-red-100"
-              title="Eliminar"
+              title="Desactivar"
               onClick={() => onDelete && onDelete(product.id)}
             >
-              <Trash2 className="h-5 w-5 text-red-500" />
             </button> */}
           </div>
         </div>

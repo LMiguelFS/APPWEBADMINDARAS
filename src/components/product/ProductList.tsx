@@ -43,6 +43,8 @@ const ProductList: React.FC = () => {
           }) || [],
           form: formOptions?.find(f => f.id === product.form_id),
         }));
+        // 🔍 Verifica los datos
+        console.log("🧪 Productos enriquecidos:", enrichedProducts);
         
 
         setProducts(enrichedProducts);
