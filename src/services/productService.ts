@@ -27,7 +27,7 @@ export const productsApi = {
     api.post('/products', data, {
       headers: { 'Content-Type': 'multipart/form-data' },
     }),
-  update: (id: string, data: any) => api.put(`/products/${id}`, data),
+  update: (id: string, data: any) => api.put(`/products/${id}/admin`, data),
   delete: (id: string) => api.delete(`/products/${id}`),
 
   // Colors
