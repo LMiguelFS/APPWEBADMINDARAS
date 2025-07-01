@@ -22,12 +22,12 @@ api.interceptors.request.use((config) => {
 export const productsApi = {
   // Products
   getAll: () => api.get('/productsAll'),
-  getById: (id: string) => api.get(`/products/${id}`),
+  getById: (id: string) => api.get(`/products/${id}/admin`),
   create: (data: FormData) =>
     api.post('/products', data, {
       headers: { 'Content-Type': 'multipart/form-data' },
     }),
-  update: (id: string, data: any) => api.put(`/products/${id}/admin`, data),
+  update: (id: string, data: any) => api.put(`/products/${id}`, data),
   delete: (id: string) => api.delete(`/products/${id}`),
 
   // Colors
