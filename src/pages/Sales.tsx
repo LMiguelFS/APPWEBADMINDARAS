@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Calendar, Filter, Download } from 'lucide-react';
-import { useInventory } from '../context/InventoryContext';
+// import { useInventory } from '../context/InventoryContext';
 // import SalesTable from '../components/SalesTable';
 import { useMetrics } from '../context/MetricsContext';
 
 const Sales: React.FC = () => {
-  const { sales } = useInventory();
+  // const { sales } = useInventory();
   const navigate = useNavigate();
   const [dateFilter, setDateFilter] = useState('all');
 
