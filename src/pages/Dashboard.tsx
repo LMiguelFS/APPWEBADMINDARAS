@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, AlertTriangle, TrendingUp } from 'lucide-react';
-import { useInventory } from '../context/InventoryContext';
-import DashboardCard from '../components/dashboard/DashboardCard';
-import ProductCard from '../components/product/ProductCard';
+// import { useInventory } from '../context/InventoryContext';
+// import DashboardCard from '../components/dashboard/DashboardCard';
+// import ProductCard from '../components/product/ProductCard';
 // import SalesTable from '../components/SalesTable';
 
 import { customersApi } from '../services/userService';
 import { User } from '../types/user';
 
 const Dashboard: React.FC = () => {
-  const {
-    dashboardMetrics,
-    lowStockProducts,
-  } = useInventory();
+  // const {
+  //   dashboardMetrics,
+  //   lowStockProducts,
+  // } = useInventory();
   const navigate = useNavigate();
 
   // Estado para nuevos usuarios desde la API externa
@@ -62,11 +62,11 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Métricas */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {dashboardMetrics.map((metric, index) => (
           <DashboardCard key={index} metric={metric} />
         ))}
-      </div>
+      </div> */}
 
       {/* Alerta de bajo stock */}
       {/* {lowStockProducts.length > 0 && (
@@ -154,7 +154,7 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Productos con bajo stock */}
-      {lowStockProducts.length > 0 && (
+      {/* {lowStockProducts.length > 0 && (
         <div id="low-stock">
           <div className="flex items-center mb-4">
             <AlertTriangle className="h-5 w-5 text-amber-500 mr-2" />
@@ -166,7 +166,8 @@ const Dashboard: React.FC = () => {
             ))}
           </div>
         </div>
-      )}
+      )} */}
+
     </div>
   );
 };

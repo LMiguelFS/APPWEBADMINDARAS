@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Calendar, Filter, Download } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
-import { adminService } from '../services/adminService';
+import { adminService } from '../services/adminService'
 
 const Sales: React.FC = () => {
-  const { sales } = useInventory();
+  // const { sales } = useInventory();
   const navigate = useNavigate();
   const [dateFilter, setDateFilter] = useState('all');
 
