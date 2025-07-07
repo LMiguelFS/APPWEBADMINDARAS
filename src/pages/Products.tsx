@@ -51,8 +51,8 @@ const Products: React.FC = () => {
               imageUrl: product.imageUrl || null,
               form: form, // Objeto completo de forma
               eventDetails: event, // Objeto completo de evento
-              colorDetails: product.colors?.map((id: number) => colorOptions.find(c => c.id === id) || { id, name: 'Desconocido' }) || [],
-              scentDetails: product.scents?.map((id: number) => scentOptions.find(s => s.id === id) || { id, name: 'Desconocido' }) || [],
+              colorDetails: product.colors || [],
+              scentDetails: product.scents || [],
             };
           });
           setProducts(enrichedData);
