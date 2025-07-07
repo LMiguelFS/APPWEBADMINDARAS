@@ -1,4 +1,5 @@
 const API_AUTH_URL = import.meta.env.VITE_API_AUTH_URL;
+const API_PRODUCTS_URL = import.meta.env.VITE_API_PRODUCTS_URL;
 
 export const adminService = {
     async getDashboardMetrics() {
@@ -44,4 +45,19 @@ export const adminService = {
         }
         return response.json();
     },
+
+    async getClientsList() {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_PRODUCTS_URL}/users`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        });
+        if (!response.ok) {
+            throw new Error('Error al obtener la lista de clientes');
+        }
+        return response.json();
+    },
+
 };
