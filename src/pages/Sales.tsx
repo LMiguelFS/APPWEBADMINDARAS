@@ -23,14 +23,21 @@ const Sales: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [clientFilter, setClientFilter] = useState('all');
 
-  // Clientes únicos para el filtro
-  const clients = Array.from(new Set(orders.map(order => order.user_id)));
+  // 1. Construir el filtro de clientes por nombre y apellido
+  const clients = Array.from(
+    new Map(
+      orders.map(order => [
+        `${order.name} ${order.last_name}`,
+        { name: order.name, last_name: order.last_name }
+      ])
+    ).values()
+  );
 
   useEffect(() => {
     setOrdersLoading(true);
     adminService.getOrdersList()
       .then(res => {
-        setOrders(res.data || []);
+        setOrders(res || []); // <-- aquí el cambio
         setOrdersLoading(false);
       })
       .catch(() => {
@@ -48,7 +55,10 @@ const Sales: React.FC = () => {
   // Filtrado de órdenes
   const filteredOrders = orders
     .filter(order => statusFilter === 'all' || order.status === statusFilter)
-    .filter(order => clientFilter === 'all' || String(order.user_id) === clientFilter);
+    .filter(order =>
+      clientFilter === 'all' ||
+      `${order.name} ${order.last_name}` === clientFilter
+    );
 
   // Función para manejar el cambio de estado (puedes implementar la API aquí)
   const handleStatusChange = async (orderId: number, newStatus: string) => {
@@ -56,7 +66,7 @@ const Sales: React.FC = () => {
       await adminService.updateOrderStatus(orderId, newStatus);
       setOrders(prev =>
         prev.map(order =>
-          order.id === orderId ? { ...order, status: newStatus } : order
+          order.order_id === orderId ? { ...order, status: newStatus } : order
         )
       );
     } catch (error) {
@@ -166,9 +176,12 @@ const Sales: React.FC = () => {
               onChange={e => setClientFilter(e.target.value)}
             >
               <option value="all">Todos los clientes</option>
-              {clients.map(clientId => (
-                <option key={clientId} value={clientId}>
-                  Cliente #{clientId}
+              {clients.map(client => (
+                <option
+                  key={`${client.name} ${client.last_name}`}
+                  value={`${client.name} ${client.last_name}`}
+                >
+                  {client.name} {client.last_name}
                 </option>
               ))}
             </select>
@@ -185,38 +198,47 @@ const Sales: React.FC = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Acciones</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Nombre</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Apellido</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Teléfono</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Producto</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Cantidad</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Monto</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Método de pago</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Acción</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-100">
                 {filteredOrders.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="text-center py-6 text-gray-400">No hay órdenes para mostrar.</td>
+                    <td colSpan={9} className="text-center py-6 text-gray-400">No hay órdenes para mostrar.</td>
                   </tr>
                 ) : (
-                  filteredOrders
-                    .sort((a, b) => b.id - a.id)
-                    .map(order => (
-                      <tr key={order.id}>
-                        <td className="px-4 py-2">{order.id}</td>
-                        <td className="px-4 py-2 capitalize">{order.status}</td>
-                        <td className="px-4 py-2">{new Date(order.created_at).toLocaleString()}</td>
-                        <td className="px-4 py-2">
-                          <select
-                            value={order.status}
-                            onChange={e => handleStatusChange(order.id, e.target.value)}
-                            className="border rounded px-2 py-1 text-sm"
-                          >
-                            <option value="pendiente">Pendiente</option>
-                            <option value="procesando">Procesando</option>
-                            <option value="finalizado">Finalizado</option>
-                          </select>
-                        </td>
-                      </tr>
-                    ))
+                  filteredOrders.map(order => (
+                    <tr key={order.order_id || order.email + order.product}>
+                      <td className="px-4 py-2">{order.name}</td>
+                      <td className="px-4 py-2">{order.last_name}</td>
+                      <td className="px-4 py-2">{order.email}</td>
+                      <td className="px-4 py-2">{order.phone || '-'}</td>
+                      <td className="px-4 py-2">{order.product}</td>
+                      <td className="px-4 py-2">{order.quantity}</td>
+                      <td className="px-4 py-2">S/{order.amount}</td>
+                      <td className="px-4 py-2 capitalize">{order.payment_method}</td>
+                      <td className="px-4 py-2">
+                        <select
+                          className="border rounded px-2 py-1"
+                          value={order.status || 'pendiente'}
+                          onChange={e => handleStatusChange(order.order_id, e.target.value)}
+                          disabled={!order.order_id}
+                        >
+                          <option value="pendiente">Pendiente</option>
+                          <option value="procesando">Procesando</option>
+                          <option value="finalizado">Finalizado</option>
+                        </select>
+                      </td>
+                    </tr>
+                  ))
                 )}
               </tbody>
             </table>
