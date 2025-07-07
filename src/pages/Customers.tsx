@@ -1,38 +1,33 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Search, Filter } from 'lucide-react';
-import { useUsers } from '../context/UserContext';  // ajusta la ruta según corresponda
+import { Search, Filter } from 'lucide-react';
+import { useClients } from '../context/ClientContext';
 
 const Customers: React.FC = () => {
-  const { users, loading, fetchUsers } = useUsers();
+  const { clients, loading, fetchClients } = useClients();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
-  // Llamar fetchUsers al montar componente
   useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+    fetchClients();
+  }, [fetchClients]);
 
-  // Si quieres buscar usuarios filtrados, podrías adaptar fetchUsers en el contexto para aceptar un parámetro 'search'
-  // o filtrar localmente:
-  // Aquí te filtro localmente para no modificar mucho el contexto
-
-  // Filtrar usuarios por búsqueda y estado
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase());
-    //const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
-    //return matchesSearch && matchesStatus;
-    return matchesSearch ;
+  const filteredClients = clients.filter(client => {
+    const matchesSearch =
+      client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (client.last_name && client.last_name.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesStatus =
+      statusFilter === 'all' ||
+      (statusFilter === 'active' && client.status === 1) ||
+      (statusFilter === 'inactive' && client.status === 0);
+    return matchesSearch && matchesStatus;
   });
 
-  // Cambiar getStatusBadgeColor para el estado que tengas en User
-  const getStatusBadgeColor = (status: boolean) => {
+  const getStatusBadgeColor = (status: number) => {
     switch (status) {
-      case true:
+      case 1:
         return 'bg-green-100 text-green-800';
-      case false:
+      case 0:
         return 'bg-yellow-100 text-yellow-800';
-      // case 'completed':
-      //   return 'bg-blue-100 text-blue-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -40,15 +35,13 @@ const Customers: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* ... resto igual, pero reemplaza customers por filteredUsers y loading de contexto */}
-
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Clientes</h1>
           <p className="mt-1 text-sm text-gray-500">
-            Gestiona tu base de {users.length} clientes
+            Gestiona tu base de {clients.length} clientes
           </p>
-        </div>  
+        </div>
       </div>
 
       <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
@@ -78,8 +71,7 @@ const Customers: React.FC = () => {
           >
             <option value="all">Todos los estados</option>
             <option value="active">Activo</option>
-            <option value="pending">Pendiente</option>
-            <option value="completed">Completado</option>
+            <option value="inactive">Inactivo</option>
           </select>
         </div>
       </div>
@@ -93,27 +85,29 @@ const Customers: React.FC = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Apellido</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DNI</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ciudad</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Distrito</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Celular</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredUsers.map(user => (
-                  <tr key={user.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">{user.name}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{user.email}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{user.dni}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{user.phone}</td>
+                {filteredClients.map(client => (
+                  <tr key={client.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">{client.name}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{client.last_name}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{client.email}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{client.dni || '-'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{client.city || '-'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{client.district || '-'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{client.phone || '-'}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeColor(user.status)}`}>
-                        {user.status === true
-                          ? 'Activo'
-                            : user.status === false
-                              ? 'Inactivo'
-                              : user.status}
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeColor(client.status)}`}>
+                        {client.status === 1 ? 'Activo' : 'Inactivo'}
                       </span>
                     </td>
                   </tr>

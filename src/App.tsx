@@ -6,6 +6,7 @@ import { useAuth } from './context/AuthContext';
 import { MetricsProvider } from './context/MetricsContext';
 import { ProductProvider } from './context/ProductContext';
 import { UsersProvider } from './context/UserContext';
+import { ClientProvider } from './context/ClientContext';
 
 import Dashboard from './pages/Dashboard';
 import Products from './pages/Products';
@@ -37,31 +38,33 @@ function App() {
       {/* <InventoryProvider> */}
       <UsersProvider>
         <ProductProvider>
-                <MetricsProvider>
-                  <Router>
-                    <Routes>
-                      <Route path="/login" element={<Login />} />
-                      <Route path="/" element={<ProtectedRoute><Layout />
-                      </ProtectedRoute>}>
-                        {/* Nested routes for admin dashboard */}
-                        <Route index element={<Dashboard />} />
-                        <Route path="products" element={<Products />} />
-                        <Route path="products/add" element={<AddProduct />} />
-                        <Route path="products/:id" element={<ProductDetail />} />
-                        <Route path="customers" element={<Customers />} />
-                        <Route path="sales" element={<Sales />} />
-                        {/* <Route path="sales/add" element={<AddSale />} /> */}
-                        <Route path="reports" element={<Reports />} />
-                        {/* <Route path="forum" element={<ForumAdmin />} /> */}
-                        <Route path="formas/add" element={<AddForma />} />
-                        <Route path="colors/add" element={<AddColor />} />
-                        <Route path="scents/add" element={<AddAroma />} />
-                        <Route path="products/edit/:id" element={<EditProduct />} />
-                        <Route path="events/add" element={<AddEvento />} />
-                      </Route>
-                    </Routes>
-                  </Router>
-                </MetricsProvider>
+          <MetricsProvider>
+            <ClientProvider>
+              <Router>
+                <Routes>
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/" element={<ProtectedRoute><Layout />
+                  </ProtectedRoute>}>
+                    {/* Nested routes for admin dashboard */}
+                    <Route index element={<Dashboard />} />
+                    <Route path="products" element={<Products />} />
+                    <Route path="products/add" element={<AddProduct />} />
+                    <Route path="products/:id" element={<ProductDetail />} />
+                    <Route path="customers" element={<Customers />} />
+                    <Route path="sales" element={<Sales />} />
+                    {/* <Route path="sales/add" element={<AddSale />} /> */}
+                    <Route path="reports" element={<Reports />} />
+                    {/* <Route path="forum" element={<ForumAdmin />} /> */}
+                    <Route path="formas/add" element={<AddForma />} />
+                    <Route path="colors/add" element={<AddColor />} />
+                    <Route path="scents/add" element={<AddAroma />} />
+                    <Route path="products/edit/:id" element={<EditProduct />} />
+                    <Route path="events/add" element={<AddEvento />} />
+                  </Route>
+                </Routes>
+              </Router>
+            </ClientProvider>
+          </MetricsProvider>
         </ProductProvider>
       </UsersProvider>
       {/* </InventoryProvider> */}
