@@ -15,7 +15,7 @@ import Layout from './components/Layout';
 import ProductDetail from './pages/ProductDetail';
 import AddProduct from './pages/AddProduct';
 import Login from './pages/Login';
-// import Reports from './pages/Reports';
+import Reports from './pages/Reports';
 // import AddSale from './pages/AddSale';
 // import ForumAdmin from './pages/Forum';
 
@@ -51,7 +51,7 @@ function App() {
                         <Route path="customers" element={<Customers />} />
                         <Route path="sales" element={<Sales />} />
                         {/* <Route path="sales/add" element={<AddSale />} /> */}
-                        {/* <Route path="reports" element={<Reports />} /> */}
+                        <Route path="reports" element={<Reports />} />
                         {/* <Route path="forum" element={<ForumAdmin />} /> */}
                         <Route path="formas/add" element={<AddForma />} />
                         <Route path="colors/add" element={<AddColor />} />
