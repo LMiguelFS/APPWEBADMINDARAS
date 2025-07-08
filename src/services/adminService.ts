@@ -1,7 +1,50 @@
+import axios from 'axios';
+
 const API_AUTH_URL = import.meta.env.VITE_API_AUTH_URL;
 const API_PRODUCTS_URL = import.meta.env.VITE_API_PRODUCTS_URL;
 
 export const adminService = {
+
+    async getSalesAnalytics(range?: string, startDate?: string, endDate?: string) {
+        const token = localStorage.getItem('token');
+        const params: any = {};
+
+        if (range && range !== 'custom') {
+            params.range = range;
+        } else if (startDate && endDate) {
+            params.start_date = startDate;
+            params.end_date = endDate;
+        }
+
+        const response = await axios.get(`${API_AUTH_URL}/admin/sales/analytics`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+            params,
+        });
+
+        return response.data;
+    },
+
+    async getDailySalesReport(startDate: string, endDate: string) {
+        const token = localStorage.getItem('token');
+
+        const response = await axios.post(`${API_AUTH_URL}/reports/sales/daily`, {
+            start_date: startDate,
+            end_date: endDate,
+            type: 'personalized',
+        }, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            }
+        });
+
+        return response.data;
+    },
+
+
     async getDashboardMetrics() {
         const token = localStorage.getItem('token');
         const response = await fetch(`${API_AUTH_URL}/admin/dashboard/metrics`, {
