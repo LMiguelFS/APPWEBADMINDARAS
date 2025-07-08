@@ -207,7 +207,7 @@ const Sales: React.FC = () => {
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Monto</th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Método de pago</th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Acción</th>
-                </tr>
+               </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-100">
                 {filteredOrders.length === 0 ? (
@@ -249,4 +249,4 @@ const Sales: React.FC = () => {
   );
 };
 
-export default Sales;
+export default Sales; 

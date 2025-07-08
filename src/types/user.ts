@@ -8,4 +8,6 @@ export interface User {
   district: string;
   dni: string;
   status: boolean;
+
+  city?: string;
 }

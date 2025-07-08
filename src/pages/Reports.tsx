@@ -1,11 +1,109 @@
-import React, { useState } from 'react';
-import { Calendar, Download, BarChart3, PieChart } from 'lucide-react';
-//import { useInventory } from '../context/InventoryContext';
+import React, { useEffect, useState } from 'react';
+import { Download, BarChart3, PieChart } from 'lucide-react';
+import DateRangeFilter, { DateRangeType } from '../components/reports/DateRangeFilter';
+import KPICards from '../components/reports/KPICards';
+import { adminService } from '../services/adminService';
+import { Pie, Bar } from 'react-chartjs-2';
+import { Chart, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js';
+Chart.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
+
+import axios from 'axios';
 
 const Reports: React.FC = () => {
-    //const { sales, products } = useInventory();
-    const [dateRange, setDateRange] = useState('month');
+    const [dateRange, setDateRange] = useState<DateRangeType>('month');
+    const [customDates, setCustomDates] = useState<{ start: string; end: string }>({
+        start: '',
+        end: ''
+    });
+    const [kpi, setKPI] = useState<{
+        totalVentas: number;
+        totalProductos: number;
+        rango: { inicio: string; fin: string };
+    }>({
+        totalVentas: 0,
+        totalProductos: 0,
+        rango: { inicio: '', fin: '' }
+    });
+    const [productosVendidos, setProductosVendidos] = useState<
+        { product: string; cantidad_vendida: number; total_generado: number }[]
+    >([]);
+    const [loading, setLoading] = useState(false);
+    const [chartView, setChartView] = useState<'productos' | 'pagos'>('productos');
+    const [paymentMethods, setPaymentMethods] = useState<{ [key: string]: number }>({});
 
+    useEffect(() => {
+        const fetchDailyReport = async () => {
+            if (dateRange === 'custom' && customDates.start && customDates.end) {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`https://api3.darasglowcandle.site/api/reports/sales/daily`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        start_date: customDates.start,
+                        end_date: customDates.end,
+                        type: 'personalized'
+                    }),
+                });
+                const json = await response.json();
+                setPaymentMethods(json.data.metrics.payment_methods || {});
+            }
+        };
+
+
+        const fetchKPI = async () => {
+            setLoading(true);
+            try {
+                let data;
+                if (dateRange === 'custom' && customDates.start && customDates.end) {
+                    data = await adminService.getSalesAnalytics('custom', customDates.start, customDates.end);
+                } else {
+                    data = await adminService.getSalesAnalytics(dateRange);
+                }
+                setKPI({
+                    totalVentas: parseFloat(data.total_ventas ?? 0),
+                    totalProductos: data.total_productos ?? 0,
+                    rango: data.rango_consultado ?? { inicio: '', fin: '' }
+                });
+                setProductosVendidos(data.productos_vendidos ?? []);
+                setPaymentMethods(data.payment_methods ?? {});
+            } catch (e) {
+                setKPI({ totalVentas: 0, totalProductos: 0, rango: { inicio: '', fin: '' } });
+                setProductosVendidos([]);
+                setPaymentMethods({});
+            }
+            setLoading(false);
+        };
+        fetchKPI();
+    }, [dateRange, customDates]);
+
+    const productosVendidosChartData = {
+        labels: productosVendidos.map(p => p.product),
+        datasets: [
+            {
+                label: 'Cantidad Vendida',
+                data: productosVendidos.map(p => p.cantidad_vendida),
+                backgroundColor: [
+                    '#60a5fa', '#fbbf24', '#34d399', '#f87171', '#a78bfa', '#f472b6', '#facc15'
+                ],
+            },
+        ],
+    };
+
+    const paymentMethodsChartData = {
+        labels: Object.keys(paymentMethods),
+        datasets: [
+            {
+                label: 'Métodos de Pago',
+                data: Object.values(paymentMethods),
+                backgroundColor: [
+                    '#60a5fa', '#fbbf24', '#34d399', '#f87171', '#a78bfa', '#f472b6', '#facc15'
+                ],
+            },
+        ],
+    };
 
     return (
         <div className="space-y-6">
@@ -13,26 +111,15 @@ const Reports: React.FC = () => {
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900">Reportes</h1>
                     <p className="mt-1 text-sm text-gray-500">
-                        Revisa el desempeño de tus ventas y el análisis de inventario
+                        Revisa el desempeño de tus ventas y el análisis
                     </p>
                 </div>
                 <div className="mt-4 sm:mt-0 flex space-x-3">
-                    <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Calendar className="h-5 w-5 text-gray-400" />
-                        </div>
-                        <select
-                            className="pl-10 pr-10 py-2 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-[#4A55A2] focus:border-[#4A55A2] sm:text-sm"
-                            value={dateRange}
-                            onChange={(e) => setDateRange(e.target.value)}
-                        >
-                            <option value="day">Este dia</option>
-                            <option value="week">Esta semana</option>
-                            <option value="month">Este mes</option>
-                            <option value="year">Este año</option>
-                            <option value="all">Todo el tiempo</option>
-                        </select>
-                    </div>
+                    <DateRangeFilter
+                        value={dateRange}
+                        onChange={setDateRange}
+                        onCustomRangeChange={(start, end) => setCustomDates({ start, end })}
+                    />
                     <button className="flex items-center px-4 py-2 border border-gray-300 bg-white text-gray-700 rounded-md hover:bg-gray-50 transition-colors duration-150">
                         <Download className="h-5 w-5 mr-1" />
                         Exportar
@@ -40,49 +127,19 @@ const Reports: React.FC = () => {
                 </div>
             </div>
 
-            {/* Sales metrics */}
+            {/* KPIs */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white rounded-lg border border-gray-200 p-6">
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-lg font-medium text-gray-900">Ingresos</h2>
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            +12.5%
-                        </span>
-                    </div>
-                    <p className="text-3xl font-bold text-gray-900">$</p>
-                    <div className="mt-2 h-1 w-full bg-gray-200 rounded-full">
-                        <div className="h-1 bg-green-500 rounded-full" style={{ width: '75%' }}></div>
-                    </div>
+                <div className="bg-white rounded-lg p-6 border border-gray-200 flex flex-col items-center">
+                    <span className="text-3xl font-bold text-green-600">S/. {kpi.totalVentas.toFixed(2)}</span>
+                    <span className="text-gray-500 mt-2">Ingreso Total </span>
                 </div>
-
-                <div className="bg-white rounded-lg border border-gray-200 p-6">
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-lg font-medium text-gray-900">Ganancia</h2>
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${21 > 20 ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'
-                            }`}>
-                            %
-                        </span>
-                    </div>
-                    <p className="text-3xl font-bold text-gray-900">$</p>
-                    <div className="mt-2 h-1 w-full bg-gray-200 rounded-full">
-                        <div
-                            className={`h-1 rounded-full ${21 > 20 ? 'bg-green-500' : 'bg-amber-500'}`}
-                            style={{ width: `${Math.min(1 * 1.5, 100)}%` }}
-                        ></div>
-                    </div>
+                <div className="bg-white rounded-lg p-6 border border-gray-200 flex flex-col items-center">
+                    <span className="text-3xl font-bold text-blue-600">{kpi.totalProductos}</span>
+                    <span className="text-gray-500 mt-2">Total de Productos Vendidos</span>
                 </div>
-
-                <div className="bg-white rounded-lg border border-gray-200 p-6">
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-lg font-medium text-gray-900">Órdenes</h2>
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            +8.3%
-                        </span>
-                    </div>
-                    <p className="text-3xl font-bold text-gray-900"></p>
-                    <div className="mt-2 h-1 w-full bg-gray-200 rounded-full">
-                        <div className="h-1 bg-blue-500 rounded-full" style={{ width: '65%' }}></div>
-                    </div>
+                <div className="bg-white rounded-lg p-6 border border-gray-200 flex flex-col items-center">
+                    <span className="text-lg font-semibold text-gray-700">Rango</span>
+                    <span className="text-gray-500 mt-1 text-sm">{kpi.rango.inicio} <br /> {kpi.rango.fin}</span>
                 </div>
             </div>
 
@@ -91,37 +148,50 @@ const Reports: React.FC = () => {
                 <div className="bg-white rounded-lg border border-gray-200 p-6">
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center">
-                            <PieChart className="h-5 w-5 text-[#4A55A2] mr-2" />
-                            <h2 className="text-lg font-medium text-gray-900">Ventas por Categoría</h2>
+                            {chartView === 'productos' ? (
+                                <BarChart3 className="h-5 w-5 text-[#4A55A2] mr-2" />
+                            ) : (
+                                <PieChart className="h-5 w-5 text-[#4A55A2] mr-2" />
+                            )}
+                            <h2 className="text-lg font-medium text-gray-900">
+                                {chartView === 'productos' ? 'Productos más vendidos' : 'Métodos de Pago'}
+                            </h2>
                         </div>
+                        <button
+                            className="px-3 py-1 rounded bg-[#4A55A2] text-white text-xs"
+                            onClick={() => setChartView(chartView === 'productos' ? 'pagos' : 'productos')}
+                        >
+                            {chartView === 'productos' ? 'Ver Métodos de Pago' : 'Ver Productos más vendidos'}
+                        </button>
                     </div>
-
-                    {/* {topCategories.length > 0 ? (
-            <div className="space-y-4">
-              {topCategories.map(([category, amount], index) => {
-                const percentage = (amount / totalRevenue) * 100;
-
-                return (
-                  <div key={index}>
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-sm font-medium text-gray-900">{category}</span>
-                      <span className="text-sm text-gray-500">${amount.toFixed(2)}</span>
+                    <div className="w-full flex justify-center items-center min-h-[250px]">
+                        {chartView === 'productos' ? (
+                            productosVendidos.length > 0 ? (
+                                <Bar
+                                    data={productosVendidosChartData}
+                                    options={{
+                                        responsive: true,
+                                        plugins: { legend: { display: false } },
+                                        scales: { y: { beginAtZero: true } }
+                                    }}
+                                />
+                            ) : (
+                                <span className="text-gray-400">No hay datos para mostrar</span>
+                            )
+                        ) : (
+                            Object.keys(paymentMethods).length > 0 ? (
+                                <Pie
+                                    data={paymentMethodsChartData}
+                                    options={{
+                                        responsive: true,
+                                        plugins: { legend: { position: 'bottom' } }
+                                    }}
+                                />
+                            ) : (
+                                <span className="text-gray-400">No hay datos para mostrar</span>
+                            )
+                        )}
                     </div>
-                    <div className="h-2 w-full bg-gray-200 rounded-full">
-                      <div
-                        className="h-2 bg-[#4A55A2] rounded-full"
-                        style={{ width: `${percentage}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-10">
-              <p className="text-sm text-gray-500">No hay datos de ventas disponibles</p>
-            </div>
-          )} */}
                 </div>
 
                 {/* Top selling products */}
@@ -133,7 +203,7 @@ const Reports: React.FC = () => {
                         </div>
                     </div>
 
-                    {1 > 0 ? (
+                    {productosVendidos.length > 0 ? (
                         <div className="overflow-hidden">
                             <table className="min-w-full divide-y divide-gray-200">
                                 <thead className="bg-gray-50">
@@ -150,7 +220,17 @@ const Reports: React.FC = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-200">
-
+                                    {productosVendidos.length > 0 ? productosVendidos.map((prod, idx) => (
+                                        <tr key={idx}>
+                                            <td className="px-6 py-4 whitespace-nowrap">{prod.product}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap">{prod.cantidad_vendida}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap">S/. {prod.total_generado.toFixed(2)}</td>
+                                        </tr>
+                                    )) : (
+                                        <tr>
+                                            <td colSpan={3} className="text-center py-4 text-gray-500">No hay datos de ventas disponibles</td>
+                                        </tr>
+                                    )}
                                 </tbody>
                             </table>
                         </div>
