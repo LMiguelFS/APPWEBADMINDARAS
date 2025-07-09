@@ -7,8 +7,6 @@ import { Pie, Bar } from 'react-chartjs-2';
 import { Chart, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js';
 Chart.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
-import axios from 'axios';
-
 const Reports: React.FC = () => {
     const [dateRange, setDateRange] = useState<DateRangeType>('month');
     const [customDates, setCustomDates] = useState<{ start: string; end: string }>({
@@ -31,52 +29,52 @@ const Reports: React.FC = () => {
     const [chartView, setChartView] = useState<'productos' | 'pagos'>('productos');
     const [paymentMethods, setPaymentMethods] = useState<{ [key: string]: number }>({});
 
+    const [orders, setOrders] = useState<any[]>([]);
+
     useEffect(() => {
-        const fetchDailyReport = async () => {
-            if (dateRange === 'custom' && customDates.start && customDates.end) {
-                const token = localStorage.getItem('token');
-                const response = await fetch(`https://api3.darasglowcandle.site/api/reports/sales/daily`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        start_date: customDates.start,
-                        end_date: customDates.end,
-                        type: 'personalized'
-                    }),
-                });
-                const json = await response.json();
-                setPaymentMethods(json.data.metrics.payment_methods || {});
-            }
-        };
-
-
-        const fetchKPI = async () => {
+        const fetchData = async () => {
             setLoading(true);
             try {
-                let data;
+                let analyticsData;
+                let ordersData;
+
+                // Obtener datos de analytics
                 if (dateRange === 'custom' && customDates.start && customDates.end) {
-                    data = await adminService.getSalesAnalytics('custom', customDates.start, customDates.end);
+                    analyticsData = await adminService.getSalesAnalytics('custom', customDates.start, customDates.end);
                 } else {
-                    data = await adminService.getSalesAnalytics(dateRange);
+                    analyticsData = await adminService.getSalesAnalytics(dateRange);
                 }
+
+                // Obtener datos de órdenes
+                ordersData = await adminService.getOrdersList();
+
                 setKPI({
-                    totalVentas: parseFloat(data.total_ventas ?? 0),
-                    totalProductos: data.total_productos ?? 0,
-                    rango: data.rango_consultado ?? { inicio: '', fin: '' }
+                    totalVentas: parseFloat(analyticsData.total_ventas ?? 0),
+                    totalProductos: analyticsData.total_productos ?? 0,
+                    rango: analyticsData.rango_consultado ?? { inicio: '', fin: '' }
                 });
-                setProductosVendidos(data.productos_vendidos ?? []);
-                setPaymentMethods(data.payment_methods ?? {});
+                setProductosVendidos(analyticsData.productos_vendidos ?? []);
+                setOrders(ordersData ?? []);
+
+                // Procesar métodos de pago desde ordersData
+                const methods: { [key: string]: number } = {};
+                ordersData.forEach((order: any) => {
+                    if (order.payment_method) {
+                        methods[order.payment_method] = (methods[order.payment_method] || 0) + 1;
+                    }
+                });
+                setPaymentMethods(methods);
+
             } catch (e) {
+                console.error("Error fetching data:", e);
                 setKPI({ totalVentas: 0, totalProductos: 0, rango: { inicio: '', fin: '' } });
                 setProductosVendidos([]);
                 setPaymentMethods({});
+                setOrders([]);
             }
             setLoading(false);
         };
-        fetchKPI();
+        fetchData();
     }, [dateRange, customDates]);
 
     const productosVendidosChartData = {
@@ -184,11 +182,31 @@ const Reports: React.FC = () => {
                                     data={paymentMethodsChartData}
                                     options={{
                                         responsive: true,
-                                        plugins: { legend: { position: 'bottom' } }
+                                        plugins: {
+                                            legend: {
+                                                position: 'bottom',
+                                                labels: {
+                                                    font: {
+                                                        size: 12
+                                                    }
+                                                }
+                                            },
+                                            tooltip: {
+                                                callbacks: {
+                                                    label: function (context) {
+                                                        const label = context.label || '';
+                                                        const value = context.raw as number; // Aseguramos que es number
+                                                        const total = (context.dataset.data as number[]).reduce((a: number, b: number) => a + b, 0);
+                                                        const percentage = Math.round((value / total) * 100);
+                                                        return `${label}: ${value} (${percentage}%)`;
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }}
                                 />
                             ) : (
-                                <span className="text-gray-400">No hay datos para mostrar</span>
+                                <span className="text-gray-400">No hay datos de métodos de pago disponibles</span>
                             )
                         )}
                     </div>
@@ -243,7 +261,7 @@ const Reports: React.FC = () => {
             </div>
 
             {/* Inventory status */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
+            {/* <div className="bg-white rounded-lg border border-gray-200 p-6">
                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center">
                         <BarChart3 className="h-5 w-5 text-[#4A55A2] mr-2" />
@@ -274,7 +292,7 @@ const Reports: React.FC = () => {
                         </p>
                     </div>
                 </div>
-            </div>
+            </div> */}
         </div>
     );
 };
