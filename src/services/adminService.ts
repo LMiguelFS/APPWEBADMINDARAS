@@ -44,6 +44,23 @@ export const adminService = {
         return response.data;
     },
 
+    async getCustomSalesReport(startDate: string, endDate: string) {
+        const token = localStorage.getItem('token');
+
+        const response = await axios.post(`${API_AUTH_URL}/reports/sales/custom`, {
+            start_date: startDate,
+            end_date: endDate,
+            type: 'personalized',
+        }, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            }
+        });
+
+        return response.data;
+    },
+
 
     async getDashboardMetrics() {
         const token = localStorage.getItem('token');

@@ -3,6 +3,7 @@ import { Download, BarChart3, PieChart } from 'lucide-react';
 import DateRangeFilter, { DateRangeType } from '../components/reports/DateRangeFilter';
 import KPICards from '../components/reports/KPICards';
 import { adminService } from '../services/adminService';
+import { generateSalesPDFReport } from '../services/pdfReportService';
 import { Pie, Bar } from 'react-chartjs-2';
 import { Chart, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js';
 Chart.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
@@ -30,6 +31,7 @@ const Reports: React.FC = () => {
     const [paymentMethods, setPaymentMethods] = useState<{ [key: string]: number }>({});
 
     const [orders, setOrders] = useState<any[]>([]);
+    const [pdfPreviewUrl, setPdfPreviewUrl] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -103,6 +105,18 @@ const Reports: React.FC = () => {
         ],
     };
 
+    const handleExportReport = async () => {
+        try {
+            const response = await adminService.getCustomSalesReport("2025-07-08", "2025-07-09");
+            const reportData = response.data; // Aquí obtienes los datos reales
+
+            // Llama a tu función que genera el PDF
+            generateSalesPDFReport(reportData);
+        } catch (error) {
+            console.error("Error al generar el reporte:", error);
+        }
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
@@ -118,7 +132,10 @@ const Reports: React.FC = () => {
                         onChange={setDateRange}
                         onCustomRangeChange={(start, end) => setCustomDates({ start, end })}
                     />
-                    <button className="flex items-center px-4 py-2 border border-gray-300 bg-white text-gray-700 rounded-md hover:bg-gray-50 transition-colors duration-150">
+                    <button
+                        onClick={handleExportReport}
+                        className="flex items-center px-4 py-2 border border-gray-300 bg-white text-gray-700 rounded-md hover:bg-gray-50 transition-colors duration-150"
+                    >
                         <Download className="h-5 w-5 mr-1" />
                         Exportar
                     </button>
