@@ -107,7 +107,7 @@ const Reports: React.FC = () => {
 
     const handleExportReport = async () => {
         try {
-            const response = await adminService.getCustomSalesReport("2025-07-08", "2025-07-09");
+            const response = await adminService.getCustomSalesReport("2025-07-01", "2025-07-15");
             const reportData = response.data; // Aquí obtienes los datos reales
 
             // Llama a tu función que genera el PDF
