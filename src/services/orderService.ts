@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { PaginatedOrderResponse } from '../types/order';
+
 const API_ORDERS_URL = import.meta.env.VITE_API_ORDERS_URL;
 
 const api = axios.create({
@@ -8,7 +10,6 @@ const api = axios.create({
   },
 });
 
-// Para agregar el token de autorización
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -17,10 +18,9 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-export const customersApi = {
-  getAll: () => api.get('/orders'),
+export const ordersApi = {
+  getAll: (page = 1): Promise<{ data: PaginatedOrderResponse }> =>
+    api.get(`/orders-list?page=${page}`),
   getById: (id: string) => api.get(`/orders/${id}`),
-  // create: (data: any) => api.post('/orders', data),
   update: (id: string, data: any) => api.put(`/orders/${id}`, data),
-  // delete: (id: string) => api.delete(`/orders/${id}`),
 };

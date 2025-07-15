@@ -4,4 +4,4 @@ export * from './scent';
 export * from './event';
 export * from './product';
 export * from './metrics';
-export * from './Client';
+export * from './client';

@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 //import { InventoryProvider } from './context/InventoryContext';
 import { AuthProvider } from './context/AuthContext';
+import { OrderProvider } from './context/OrderContext';
 import { useAuth } from './context/AuthContext';
 import { MetricsProvider } from './context/MetricsContext';
 import { ProductProvider } from './context/ProductContext';
@@ -17,6 +18,7 @@ import ProductDetail from './pages/ProductDetail';
 import AddProduct from './pages/AddProduct';
 import Login from './pages/Login';
 import Reports from './pages/Reports';
+import Orders from './pages/Orders';
 // import AddSale from './pages/AddSale';
 // import ForumAdmin from './pages/Forum';
 
@@ -37,6 +39,7 @@ function App() {
     <AuthProvider>
       {/* <InventoryProvider> */}
       <UsersProvider>
+        <OrderProvider>
         <ProductProvider>
           <MetricsProvider>
             <ClientProvider>
@@ -52,6 +55,7 @@ function App() {
                     <Route path="products/:id" element={<ProductDetail />} />
                     <Route path="customers" element={<Customers />} />
                     <Route path="sales" element={<Sales />} />
+                    <Route path="orders" element={<Orders />} />
                     {/* <Route path="sales/add" element={<AddSale />} /> */}
                     <Route path="reports" element={<Reports />} />
                     {/* <Route path="forum" element={<ForumAdmin />} /> */}
@@ -66,6 +70,7 @@ function App() {
             </ClientProvider>
           </MetricsProvider>
         </ProductProvider>
+        </OrderProvider>
       </UsersProvider>
       {/* </InventoryProvider> */}
     </AuthProvider >

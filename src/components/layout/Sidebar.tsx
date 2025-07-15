@@ -31,6 +31,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
     { name: 'Panel', path: '/', icon: <LayoutDashboard className="mr-3 h-5 w-5" /> },
     { name: 'Productos', path: '/products', icon: <Package className="mr-3 h-5 w-5" /> },
     { name: 'Clientes', path: '/customers', icon: <Users className="mr-3 h-5 w-5" /> },
+    { name: 'Pedidos', path: '/orders', icon: <Package className="mr-3 h-5 w-5" /> },
     { name: 'Ventas', path: '/sales', icon: <ShoppingCart className="mr-3 h-5 w-5" /> },
     { name: 'Reportes', path: '/reports', icon: <BarChart3 className="mr-3 h-5 w-5" /> },
     { name: 'Configuración', path: '/settings', icon: <Settings className="mr-3 h-5 w-5" /> },
