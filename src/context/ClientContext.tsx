@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { adminService } from '../services/adminService';
-import { Client } from '../types/Client';
+import { Client } from '../types/client';
 
 interface ClientContextProps {
   clients: Client[];

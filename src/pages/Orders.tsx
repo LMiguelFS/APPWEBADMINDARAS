@@ -1,31 +1,43 @@
 import React, { useEffect, useState } from 'react';
 import { Search, Filter } from 'lucide-react';
 import { useOrders } from '../context/OrderContext';
+import { useClients } from '../context/ClientContext';
 
 const Orders: React.FC = () => {
   // const { orders, loading, fetchOrders } = useOrders();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const { orders, loading, fetchOrders, currentPage, totalPages } = useOrders();
+  const { clients, fetchClients } = useClients(); // usar el contexto
+
 
   useEffect(() => {
     fetchOrders(currentPage);
   }, [fetchOrders, currentPage]);
 
-  // const filteredOrders = orders.filter((order) => {
-  //   const matchesSearch =
-  //     order.customer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //     order.id?.toLowerCase().includes(searchTerm.toLowerCase());
+  // Obtener la lista de clientes al montar el componente
+  useEffect(() => {
+    fetchClients();
+  }, [fetchClients]);
 
-  //   const matchesStatus =
-  //     statusFilter === 'all' ||
-  //     (statusFilter === 'pending' && order.status === 'pending') ||
-  //     (statusFilter === 'completed' && order.status === 'completed') ||
-  //     (statusFilter === 'canceled' && order.status === 'canceled');
+  // Función para obtener el nombre del cliente por ID
+  const getClientNameById = (id: number | string) => {
+    const client = clients.find((client) => client.id === Number(id));
+    return client ? client.name : '-';
+  };
 
-  //   return matchesSearch && matchesStatus;
-  // });
+  const filteredOrders = orders.filter((order) => {
+    const client = clients.find((c) => c.id === Number(order.user_id));
+    const clientName = client?.name || '';
 
+    const matchesSearch =
+      clientName.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesStatus =
+      statusFilter === 'all' || order.status === statusFilter;
+
+    return matchesSearch && matchesStatus;
+  });
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
       case 'pending':
@@ -103,10 +115,10 @@ const Orders: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {orders.map((order) => (
+                {filteredOrders.map((order) => (
                   <tr key={order.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">{order.id}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{order.user_id || '-'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{getClientNameById(order.user_id)}</td>
                     <td className="px-6 py-4 whitespace-nowrap">{new Date(order.created_at).toLocaleDateString()}</td>
                     <td>{PEN.format(parseFloat(order.amount))}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
